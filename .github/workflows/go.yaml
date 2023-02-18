@@ -1,6 +1,6 @@
 name: Go
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   go:
@@ -32,11 +32,14 @@ jobs:
           path: ${{ steps.go-cache-paths.outputs.go-mod }}
           key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
 
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+
       - name: Test
-        run: go test -v ./...
+        run: go test -coverprofile=coverage.txt -covermode=atomic -v ./...
         env:
           KALSHI_PASSWORD: ${{ secrets.KALSHI_PASSWORD }}
           KALSHI_EMAIL: ${{ secrets.KALSHI_EMAIL }}
 
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v3
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
