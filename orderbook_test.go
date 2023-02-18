@@ -21,9 +21,7 @@ func TestOrderBook(t *testing.T) {
 	_, ok := book.No.BestPrice(100)
 	require.False(t, ok)
 
-	var (
-		price Cents
-	)
+	var price Cents
 
 	// Since order is small, should execute at best price.
 	price, ok = book.Yes.BestPrice(10)

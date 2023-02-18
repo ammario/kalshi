@@ -35,9 +35,9 @@ jobs:
       - name: Format
         run: |
           go run mvdan.cc/gofumpt@latest -w -l .
+          git diff
           diff=$(git diff)
-          echo $diff
-          [[ ! -z "$diff" ]] && exit 1
+          if [[ ! -z "$diff" ]]; && exit 1
 
       - name: Lint
         uses: golangci/golangci-lint-action@v3

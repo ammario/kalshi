@@ -97,7 +97,7 @@ func jsonRequestHeaders(
 	if err != nil {
 		return fmt.Errorf("dump: %w", err)
 	}
-	var dumpErr = fmt.Sprintf("Request\n%s%s\nResponse\n%s%s",
+	dumpErr := fmt.Sprintf("Request\n%s%s\nResponse\n%s%s",
 		reqDump,
 		reqBodyByt,
 		respDump,

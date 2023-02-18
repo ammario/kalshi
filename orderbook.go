@@ -34,7 +34,6 @@ func (b OrderBookDirection) BestPrice(wantQuantity int) (Cents, bool) {
 		if foundQuantity == wantQuantity {
 			// We round up to be conservative.
 			return Cents(math.Round(float64(weightedCum) / float64(wantQuantity))), true
-
 		} else if foundQuantity > wantQuantity {
 			panic(fmt.Sprintf("%+v %+v", foundQuantity, wantQuantity))
 		}
