@@ -32,7 +32,14 @@ jobs:
           path: ${{ steps.go-cache-paths.outputs.go-mod }}
           key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
 
-      - name: golangci-lint
+      - name: Format
+        run: |
+          go run mvdan.cc/gofumpt@latest -w -l .
+          diff=$(git diff)
+          echo $diff
+          [[ ! -z "$diff" ]] && exit 1
+
+      - name: Lint
         uses: golangci/golangci-lint-action@v3
 
       - name: Test
