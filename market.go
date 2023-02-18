@@ -6,6 +6,8 @@ import (
 	"time"
 )
 
+// Event is described here:
+// https://trading-api.readme.io/reference/getevents.
 type Event struct {
 	Category          string    `json:"category"`
 	EventTicker       string    `json:"event_ticker"`
@@ -89,6 +91,8 @@ type MarketsRequest struct {
 	Tickers []string `url:"status,omitempty"`
 }
 
+// Market is described here:
+// https://trading-api.readme.io/reference/getmarkets.
 type Market struct {
 	Ticker          string    `json:"ticker"`
 	EventTicker     string    `json:"event_ticker"`
@@ -148,6 +152,8 @@ func (c *Client) Markets(
 	return &resp, nil
 }
 
+// Trade is described here:
+// https://trading-api.readme.io/reference/gettrades.
 type Trade struct {
 	Count       int       `json:"count"`
 	CreatedTime time.Time `json:"created_time"`
@@ -218,7 +224,7 @@ type MarketHistory struct {
 	NoAsk        int       `json:"no_ask"`
 	NoBid        int       `json:"no_bid"`
 	OpenInterest int       `json:"open_interest"`
-	Ts           timestamp `json:"ts"`
+	Ts           Timestamp `json:"ts"`
 	Volume       int       `json:"volume"`
 	YesAsk       int       `json:"yes_ask"`
 	YesBid       int       `json:"yes_bid"`
@@ -237,8 +243,8 @@ type MarketHistoryResponse struct {
 // https://trading-api.readme.io/reference/getmarkethistory.
 type MarketHistoryRequest struct {
 	CursorRequest
-	MinTS timestamp `json:"min_ts,omitempty"`
-	MaxTS timestamp `json:"max_ts,omitempty"`
+	MinTS Timestamp `json:"min_ts,omitempty"`
+	MaxTS Timestamp `json:"max_ts,omitempty"`
 }
 
 func (c *Client) MarketHistory(

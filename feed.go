@@ -13,6 +13,10 @@ import (
 	"nhooyr.io/websocket/wsjson"
 )
 
+// Feed is a websocket connection to the Kalshi streaming API.
+// Feed is described in more detail here:
+// https://trading-api.readme.io/reference/introduction.
+// WARNING: Feed has not been thoroughly tested.
 type Feed struct {
 	c *websocket.Conn
 }
@@ -266,7 +270,11 @@ func (f *Feed) Close() error {
 	return f.c.Close(websocket.StatusNormalClosure, "")
 }
 
-func (c *Client) Feed(ctx context.Context) (*Feed, error) {
+// OpenFeed creates a new market data streaming connection.
+// OpenFeed is described in more detail here:
+// https://trading-api.readme.io/reference/introduction.
+// WARNING: OpenFeed has not been thoroughly tested.
+func (c *Client) OpenFeed(ctx context.Context) (*Feed, error) {
 	// Convert BaseURL to a websocket URL.
 	u, err := url.Parse(c.BaseURL)
 	if err != nil {

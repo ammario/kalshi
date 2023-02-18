@@ -179,7 +179,7 @@ func TestFeed(t *testing.T) {
 
 		t.Logf("highest volume market: %+v %v (24h) %v (all time)", m.Ticker, m.Volume24H, m.Volume)
 
-		s, err := client.Feed(ctx)
+		s, err := client.OpenFeed(ctx)
 		require.NoError(t, err)
 		defer s.Close()
 

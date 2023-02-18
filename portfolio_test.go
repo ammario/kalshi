@@ -59,7 +59,7 @@ func TestOrder(t *testing.T) {
 		createReq := CreateOrderRequest{
 			Action:     "buy",
 			Count:      1,
-			Expiration: timestamp(time.Now().Add(time.Minute)),
+			Expiration: Timestamp(time.Now().Add(time.Minute)),
 			Ticker:     testMarket.Ticker,
 			BuyMaxCost: 1,
 			Type:       "market",
@@ -88,7 +88,7 @@ func TestOrder(t *testing.T) {
 		createReq := CreateOrderRequest{
 			Action:     "buy",
 			Count:      2,
-			Expiration: timestamp(time.Now().Add(time.Minute)),
+			Expiration: Timestamp(time.Now().Add(time.Minute)),
 			Ticker:     testMarket.Ticker,
 			YesPrice:   1,
 			Type:       "limit",

@@ -42,6 +42,9 @@ func (b OrderBookDirection) BestPrice(wantQuantity int) (Cents, bool) {
 	return -1, false
 }
 
+// OrderBook is a snapshot of the order book.
+// It is described here:
+// https://trading-api.readme.io/reference/getmarketorderbook.
 type OrderBook struct {
 	Yes OrderBookDirection `json:"yes"`
 	No  OrderBookDirection `json:"no"`

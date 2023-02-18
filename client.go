@@ -27,13 +27,14 @@ const (
 // the API.
 type Cents = int
 
+// Client must be instantiated via New.
 type Client struct {
-	httpClient *http.Client
 	// BaseURL is one of APIDemoURL or APIProdURL.
 	BaseURL string
 
 	// See https://trading-api.readme.io/reference/tiers-and-rate-limits
-	Ratelimit *rate.Limiter
+	Ratelimit  *rate.Limiter
+	httpClient *http.Client
 }
 
 type CursorResponse struct {
@@ -160,24 +161,23 @@ func (c *Client) request(
 	)
 }
 
-// timestmap represents a UNIX timestamp in seconds suitable for the Kalshi
-// JSON HTTP API.
-type timestamp time.Time
+// Timestamp represents a POSIX Timestamp in seconds.
+type Timestamp time.Time
 
-func (t timestamp) Time() time.Time {
+func (t Timestamp) Time() time.Time {
 	return time.Time(t)
 }
 
-func (t *timestamp) UnmarshalJSON(b []byte) error {
+func (t *Timestamp) UnmarshalJSON(b []byte) error {
 	i, err := strconv.Atoi(string(b))
 	if err != nil {
 		return err
 	}
-	*t = timestamp(time.Unix(int64(i), 0))
+	*t = Timestamp(time.Unix(int64(i), 0))
 	return nil
 }
 
-func (t timestamp) MarshalJSON() ([]byte, error) {
+func (t Timestamp) MarshalJSON() ([]byte, error) {
 	return []byte(strconv.Itoa(int(time.Time(t).UTC().Unix()))), nil
 }
 

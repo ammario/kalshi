@@ -16,7 +16,7 @@ type CreateOrderRequest struct {
 	Action        string    `json:"action,omitempty"`
 	BuyMaxCost    int       `json:"buy_max_cost,omitempty"`
 	Count         int       `json:"count,omitempty"`
-	Expiration    timestamp `json:"expiration_ts,omitempty"`
+	Expiration    Timestamp `json:"expiration_ts,omitempty"`
 	NoPrice       int       `json:"no_price,omitempty"`
 	YesPrice      int       `json:"yes_price,omitempty"`
 	Ticker        string    `json:"ticker,omitempty"`
@@ -26,6 +26,7 @@ type CreateOrderRequest struct {
 	Side Side   `json:"side"`
 }
 
+// String returns a human-readable representation of the order.
 func (c *CreateOrderRequest) String() string {
 	var price int
 	if c.Side == Yes {
@@ -102,6 +103,8 @@ type Order struct {
 	YesPrice         int    `json:"yes_price"`
 }
 
+// Orders is described here:
+// https://trading-api.readme.io/reference/getorders.
 type OrdersResponse struct {
 	CursorResponse
 	Orders []Order `json:"orders"`
@@ -161,8 +164,8 @@ type FillsRequest struct {
 	CursorRequest
 	Ticker  string    `url:"ticker,omitempty"`
 	OrderID string    `url:"order_id,omitempty"`
-	MinTS   timestamp `url:"min_ts,omitempty"`
-	MaxTS   timestamp `url:"max_ts,omitempty"`
+	MinTS   Timestamp `url:"min_ts,omitempty"`
+	MaxTS   Timestamp `url:"max_ts,omitempty"`
 }
 
 // FillsResponse is described here:
