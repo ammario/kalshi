@@ -1,6 +1,6 @@
 # kalshi
 [![Go Reference](https://pkg.go.dev/badge/github.com/ammario/kalshi.svg)](https://pkg.go.dev/github.com/ammario/kalshi@master)
-![Go workflow status](https://github.com/ammario/kalshi/.github/workflows/go.yaml/badge.svg)
+![Go workflow status](https://github.com/ammario/kalshi/actions/workflows/go.yaml/badge.svg)
 
 
 Package `kalshi` provides a Go implementation of [the Kalshi API](https://trading-api.readme.io/reference/getting-started).
