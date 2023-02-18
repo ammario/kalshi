@@ -34,8 +34,8 @@ func (c *CreateOrderRequest) String() string {
 		price = c.NoPrice
 	}
 	return fmt.Sprintf(
-		"BUY %v %v at %v cents, expires in %v, max cost is %v",
-		c.Count, strings.ToUpper(string(c.Side)), price, time.Until(c.Expiration.Time()), c.BuyMaxCost,
+		"%v %v %v at %v cents, expires in %v, max cost is %v",
+		c.Action, c.Count, strings.ToUpper(string(c.Side)), price, time.Until(c.Expiration.Time()), c.BuyMaxCost,
 	)
 }
 
@@ -77,13 +77,29 @@ type OrdersRequest struct {
 // Order is described here:
 // https://trading-api.readme.io/reference/getorders.
 type Order struct {
-	Action     string  `json:"action"`
-	OrderType  string  `json:"order_type,omitempty"`
-	OrderID    string  `json:"client_order_id,omitempty"`
-	Price      float64 `json:"price,omitempty"`
-	Status     string  `json:"status,omitempty"`
-	Ticker     string  `json:"ticker"`
-	Expiration *Time   `json:"expiration_time,omitempty"`
+	Action           string `json:"action"`
+	ClientOrderID    string `json:"client_order_id"`
+	CloseCancelCount int    `json:"close_cancel_count"`
+	CreatedTime      *Time  `json:"created_time"`
+	DecreaseCount    int    `json:"decrease_count"`
+	ExpirationTime   *Time  `json:"expiration_time"`
+	FccCancelCount   int    `json:"fcc_cancel_count"`
+	LastUpdateTime   *Time  `json:"last_update_time"`
+	MakerFillCount   int    `json:"maker_fill_count"`
+	NoPrice          int    `json:"no_price"`
+	OrderID          string `json:"order_id"`
+	PlaceCount       int    `json:"place_count"`
+	QueuePosition    int    `json:"queue_position"`
+	RemainingCount   int    `json:"remaining_count"`
+	Side             string `json:"side"`
+	Status           string `json:"status"`
+	TakerFees        int    `json:"taker_fees"`
+	TakerFillCost    int    `json:"taker_fill_cost"`
+	TakerFillCount   int    `json:"taker_fill_count"`
+	Ticker           string `json:"ticker"`
+	Type             string `json:"type"`
+	UserID           string `json:"user_id"`
+	YesPrice         int    `json:"yes_price"`
 }
 
 type OrdersResponse struct {
@@ -172,9 +188,9 @@ func (c *Client) Fills(ctx context.Context, req FillsRequest) (*FillsResponse, e
 	return &resp, nil
 }
 
-// GetOrder is described here:
+// Order is described here:
 // https://trading-api.readme.io/reference/getorder.
-func (c *Client) GetOrder(ctx context.Context, orderID string) (*Order, error) {
+func (c *Client) Order(ctx context.Context, orderID string) (*Order, error) {
 	var resp struct {
 		Order Order `json:"order"`
 	}
@@ -209,8 +225,8 @@ func (c *Client) CancelOrder(ctx context.Context, orderID string) (*Order, error
 // DecreaseOrder is described here:
 // https://trading-api.readme.io/reference/decreaseorder.
 type DecreaseOrderRequest struct {
-	ReduceBy int `json:"reduce_by"`
-	ReduceTo int `json:"reduce_to"`
+	ReduceBy int `json:"reduce_by,omitempty"`
+	ReduceTo int `json:"reduce_to,omitempty"`
 }
 
 // DecreaseOrder is described here:
@@ -296,7 +312,7 @@ func (c *Client) Positions(ctx context.Context, req PositionsRequest) (*Position
 
 // PortfolioSettlements is described here:
 // https://trading-api.readme.io/reference/getportfoliosettlements.
-type PostfolioSettlementsRequest struct {
+type SettlementsRequest struct {
 	CursorRequest
 }
 
@@ -320,9 +336,9 @@ type PortfolioSettlementsResponse struct {
 	Settlements []Settlement `json:"settlements"`
 }
 
-// PortfolioSettlements is described here:
+// Settlements is described here:
 // https://trading-api.readme.io/reference/getportfoliosettlements.
-func (c *Client) PortfolioSettlements(ctx context.Context, req PostfolioSettlementsRequest) (*PortfolioSettlementsResponse, error) {
+func (c *Client) Settlements(ctx context.Context, req SettlementsRequest) (*PortfolioSettlementsResponse, error) {
 	var resp PortfolioSettlementsResponse
 	err := c.request(ctx, request{
 		Method:       "GET",

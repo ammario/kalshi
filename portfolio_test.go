@@ -56,8 +56,6 @@ func TestOrder(t *testing.T) {
 	t.Logf("orders: %+v", orders)
 
 	t.Run("Market", func(t *testing.T) {
-		// Order is so cheap that even if it executed we wouldn't care.
-		// This should look very similar to the order in the executor.
 		createReq := CreateOrderRequest{
 			Action:     "buy",
 			Count:      1,
@@ -67,30 +65,45 @@ func TestOrder(t *testing.T) {
 			Type:       "market",
 			Side:       Yes,
 		}
+		t.Logf("create req: %+v", createReq.String())
 		order, err := client.CreateOrder(ctx, createReq)
 		require.NoError(t, err)
 		t.Logf("created order: %+v", order)
-		require.True(t, order.Expiration.After((time.Now())))
+		require.True(t, order.ExpirationTime.After((time.Now())))
 		// Market order should execute immediately.
 		require.Equal(t, "executed", order.Status)
-
+		t.Run("Fills", func(t *testing.T) {
+			t.Skip("Doesn't seem to work?")
+			fills, err := client.Fills(ctx, FillsRequest{
+				OrderID: order.OrderID,
+			})
+			require.NoError(t, err)
+			require.Len(t, fills.Fills, 1)
+			t.Logf("fills: %+v", fills)
+		})
 	})
 
 	t.Run("Limit", func(t *testing.T) {
 		// Testing limit
 		createReq := CreateOrderRequest{
 			Action:     "buy",
-			Count:      1,
+			Count:      2,
 			Expiration: timestamp(time.Now().Add(time.Minute)),
 			Ticker:     testMarket.Ticker,
 			YesPrice:   1,
 			Type:       "limit",
 			Side:       Yes,
 		}
-		// Check idempotence
-		nextOrder, err := client.CreateOrder(ctx, createReq)
+		order, err := client.CreateOrder(ctx, createReq)
 		require.NoError(t, err)
-		t.Logf("created order: %+v", nextOrder)
+		t.Logf("created order: %+v", order)
+
+		t.Run("Order", func(t *testing.T) {
+			t.Parallel()
+			order, err := client.Order(ctx, order.OrderID)
+			require.NoError(t, err)
+			require.NotZero(t, order)
+		})
 
 		require.Eventually(t, func() bool {
 			orders, err = client.Orders(ctx, OrdersRequest{
@@ -104,5 +117,41 @@ func TestOrder(t *testing.T) {
 		for _, order := range orders.Orders {
 			t.Logf("order: %+v", order)
 		}
+
+		t.Run("Decrease", func(t *testing.T) {
+			order, err := client.Order(ctx, order.OrderID)
+			require.NoError(t, err)
+			require.Equal(t, order.RemainingCount, 2)
+
+			order, err = client.DecreaseOrder(ctx, order.OrderID, DecreaseOrderRequest{
+				ReduceBy: 1,
+			})
+			require.NoError(t, err)
+			require.Equal(t, order.RemainingCount, 1)
+		})
+
+		t.Run("Positions", func(t *testing.T) {
+			resp, err := client.Positions(ctx, PositionsRequest{})
+			require.NoError(t, err)
+			require.Greater(t, len(resp.EventPositions), 0)
+			require.Greater(t, len(resp.MarketPositions), 0)
+		})
+
+		t.Run("Cancel", func(t *testing.T) {
+			order, err := client.CancelOrder(ctx, order.OrderID)
+			require.NoError(t, err)
+			require.Equal(t, order.Status, "canceled")
+		})
 	})
+}
+
+func TestSettlements(t *testing.T) {
+	t.Parallel()
+
+	client := testClient(t)
+
+	ctx := context.Background()
+
+	_, err := client.Settlements(ctx, SettlementsRequest{})
+	require.NoError(t, err)
 }

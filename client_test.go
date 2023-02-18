@@ -37,5 +37,9 @@ func testClient(t *testing.T) *Client {
 		Password: password,
 	})
 	require.NoError(t, err)
+	t.Cleanup(func() {
+		// Logout will fail during the Logout test.
+		_ = c.Logout(ctx)
+	})
 	return c
 }
