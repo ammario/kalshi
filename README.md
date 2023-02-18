@@ -55,15 +55,16 @@ Supports:
 | Endpoint               | Support Status |
 | ---------------------- | -------------- |
 | GetBalance             | ✅              |
+| GetFills               | ✅              |
 | GetOrders              | ✅              |
 | CreateOrder            | ✅              |
 | GetOrder               | ✅              |
 | CancelOrder            | ✅              |
 | BatchCreateOrders      | ❌              |
 | BatchCancelOrders      | ❌              |
-| DecreaseOrder          | ❌              |
-| GetPositions           | ❌              |
-| GetPortolioSettlements | ❌              |
+| DecreaseOrder          | ✅              |
+| GetPositions           | ✅              |
+| GetPortolioSettlements | ✅              |
 
 ### Market Data Feed 
 

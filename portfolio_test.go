@@ -98,10 +98,10 @@ func TestOrder(t *testing.T) {
 				Ticker: testMarket.Ticker,
 			})
 			require.NoError(t, err)
-			return len(orders) > 0
+			return len(orders.Orders) > 0
 		}, time.Second*5, time.Millisecond*500)
 
-		for _, order := range orders {
+		for _, order := range orders.Orders {
 			t.Logf("order: %+v", order)
 		}
 	})

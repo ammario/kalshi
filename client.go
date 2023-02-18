@@ -241,19 +241,3 @@ func SideBool(yes bool) Side {
 	}
 	return No
 }
-
-type MarketPosition struct {
-	FeesPaid           int    `json:"fees_paid"`
-	FinalPosition      int    `json:"final_position"`
-	FinalPositionCost  int    `json:"final_position_cost"`
-	IsSettled          bool   `json:"is_settled"`
-	LastPosition       int    `json:"last_position"`
-	MarketID           string `json:"market_id"`
-	Position           int    `json:"position"`
-	PositionCost       int    `json:"position_cost"`
-	RealizedPnl        int    `json:"realized_pnl"`
-	RestingOrdersCount int    `json:"resting_orders_count"`
-	TotalCost          int    `json:"total_cost"`
-	UserID             string `json:"user_id"`
-	Volume             int    `json:"volume"`
-}
