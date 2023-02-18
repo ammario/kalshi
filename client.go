@@ -18,6 +18,11 @@ import (
 	"golang.org/x/time/rate"
 )
 
+const (
+	APIDemoURL = "https://demo-api.kalshi.co/trade-api/v2/"
+	APIProdURL = "https://trading-api.kalshi.com/trade-api/v2/"
+)
+
 type Client struct {
 	httpClient *http.Client
 

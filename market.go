@@ -8,11 +8,6 @@ import (
 	"github.com/google/go-querystring/query"
 )
 
-const (
-	APIDemoURL = "https://demo-api.kalshi.co/trade-api/v2/"
-	APIProdURL = "https://trading-api.kalshi.com/trade-api/v2/"
-)
-
 type GetMarketsOptions struct {
 	CursorRequest
 	EventTicker  string `url:"event_ticker,omitempty"`
