@@ -99,4 +99,4 @@ func main() {
 
 ### Market Data Feed 
 
-[Market Data Feed](https://trading-api.readme.io/reference/introduction) is supported, although it hasn't been thoroughly tested. You may open a feed through `(*Client).Feed()`.
+[Market Data Feed](https://trading-api.readme.io/reference/introduction) is supported, although it hasn't been thoroughly tested. You may open a feed through `(*Client).OpenFeed()`.
