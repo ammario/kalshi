@@ -8,13 +8,6 @@ go get github.com/ammario/kalshi@master
 
 ## Endpoints
 
-
-| Supported | TODO     |
-| --------- | -------- |
-| * Market  | * Market |
-|           |          |
-
-
 ### Supported
 * Market
   * GetMarkets
