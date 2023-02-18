@@ -25,18 +25,26 @@ func Test_orderBookStreamState(t *testing.T) {
 	}
 
 	// Add entry
-	sob.ApplyDelta("yes", 10, 20)
+	err := sob.ApplyDelta("yes", 10, 20)
+	require.NoError(t, err)
+
 	requireBook([][2]int{
 		{10, 20},
 	}, nil)
 
 	// Delete entry
-	sob.ApplyDelta("yes", 10, -20)
+	err = sob.ApplyDelta("yes", 10, -20)
+	require.NoError(t, err)
+
 	requireBook(nil, nil)
 
 	// Add entry
-	sob.ApplyDelta("yes", 10, 20)
-	sob.ApplyDelta("no", 11, 21)
+	err = sob.ApplyDelta("yes", 10, 20)
+	require.NoError(t, err)
+
+	err = sob.ApplyDelta("no", 11, 21)
+	require.NoError(t, err)
+
 	requireBook([][2]int{
 		{10, 20},
 	}, [][2]int{
@@ -44,8 +52,12 @@ func Test_orderBookStreamState(t *testing.T) {
 	})
 
 	// Entry sorts
-	sob.ApplyDelta("yes", 9, 20)
-	sob.ApplyDelta("no", 10, 21)
+	err = sob.ApplyDelta("yes", 9, 20)
+	require.NoError(t, err)
+
+	err = sob.ApplyDelta("no", 10, 21)
+	require.NoError(t, err)
+
 	requireBook([][2]int{
 		{9, 20},
 		{10, 20},
