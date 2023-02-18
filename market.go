@@ -54,8 +54,8 @@ type Market struct {
 // MarketsResponse is described here:
 // https://trading-api.readme.io/reference/getmarkets.
 type MarketsResponse struct {
-	Markets        []Market `json:"markets,omitempty"`
-	CursorResponse `json:"cursor_response,omitempty"`
+	Markets []Market `json:"markets,omitempty"`
+	CursorResponse
 }
 
 func (c *Client) Markets(

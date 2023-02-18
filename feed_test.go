@@ -82,13 +82,16 @@ func highestVolumeMarkets(ctx context.Context, t *testing.T, client *Client) []M
 				Cursor: cursor,
 			},
 			MinCloseTs: int(time.Now().Unix()),
-			// We know from history that FED contains the most popular markets.
-			// If we iterated over _all_ of the markets, we'd send a lot
-			// of requests, adding unwanted test latency.
-			// SeriesTicker: "FED",
-			Status: "open",
+			// GTEP is arbitrarily chosen to restrict our search space.
+			SeriesTicker: "GTEMP",
+			Status:       "open",
 		})
 		require.NoError(t, err)
+
+		// For debug purposes.
+		for _, m := range resp.Markets {
+			t.Logf("market: %+v", m.Ticker)
+		}
 
 		markets = append(markets, resp.Markets...)
 		if resp.Cursor != "" {

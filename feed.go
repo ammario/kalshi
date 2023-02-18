@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"sort"
 	"time"
 
@@ -266,14 +267,22 @@ func (f *Feed) Close() error {
 }
 
 func (c *Client) Feed(ctx context.Context) (*Feed, error) {
+	// Convert BaseURL to a websocket URL.
+	u, err := url.Parse(c.BaseURL)
+	if err != nil {
+		return nil, fmt.Errorf("parse %q: %w", c.BaseURL, err)
+	}
+	u.Scheme = "wss"
+	u.Path = "trade-api/ws/v2"
+
 	conn, resp, err := websocket.Dial(ctx,
-		"wss://trading-api.kalshi.com/trade-api/ws/v2",
+		u.String(),
 		&websocket.DialOptions{
 			HTTPClient: c.httpClient,
 		},
 	)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("dial %q: %w", u.String(), err)
 	}
 	if resp.StatusCode != http.StatusSwitchingProtocols {
 		return nil, fmt.Errorf("websocket refused: %v", resp.Status)
