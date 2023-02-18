@@ -37,3 +37,6 @@ jobs:
         env:
           KALSHI_PASSWORD: ${{ secrets.KALSHI_PASSWORD }}
           KALSHI_EMAIL: ${{ secrets.KALSHI_EMAIL }}
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3

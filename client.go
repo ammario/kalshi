@@ -169,15 +169,6 @@ func (t timestamp) Time() time.Time {
 	return time.Time(t)
 }
 
-func (t *timestamp) UnmarshalJSON(byt []byte) error {
-	secs, err := strconv.Atoi(string(byt))
-	if err != nil {
-		return err
-	}
-	*t = timestamp(time.Unix(int64(secs), 0))
-	return nil
-}
-
 func (t timestamp) MarshalJSON() ([]byte, error) {
 	return []byte(strconv.Itoa(int(time.Time(t).UTC().Unix()))), nil
 }
