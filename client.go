@@ -121,15 +121,6 @@ func (t *Time) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-type UserOrder struct {
-	Action     string  `json:"action"`
-	OrderType  string  `json:"order_type,omitempty"`
-	OrderID    string  `json:"client_order_id,omitempty"`
-	Price      float64 `json:"price,omitempty"`
-	Status     string  `json:"status,omitempty"`
-	Ticker     string  `json:"ticker"`
-	Expiration *Time   `json:"expiration_time,omitempty"`
-}
 type Side string
 
 const (
