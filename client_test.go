@@ -10,7 +10,7 @@ import (
 	"golang.org/x/time/rate"
 )
 
-var rateLimit = rate.NewLimiter(rate.Every(time.Second*10), 10-1)
+var rateLimit = rate.NewLimiter(rate.Every(time.Second), 10-1)
 
 func testClient(t *testing.T) *Client {
 	const (

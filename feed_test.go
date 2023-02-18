@@ -125,6 +125,8 @@ func TestFeed(t *testing.T) {
 	markets := highestVolumeMarkets(ctx, t, client)
 
 	verifyBook := func(t *testing.T, marketTicker string, gotBook *StreamOrderBook) {
+		require.NotNil(t, gotBook)
+
 		var (
 			wantBook *OrderBook
 			err      error
@@ -138,7 +140,7 @@ func TestFeed(t *testing.T) {
 			require.NoError(t, err)
 
 			return reflect.DeepEqual(wantBook.No, gotBook.No) && reflect.DeepEqual(wantBook.Yes, gotBook.Yes)
-		}, time.Second*10, time.Second, "%+v")
+		}, time.Second*10, time.Second)
 
 		// This gives a pretty error.
 		require.Equal(t, wantBook.Yes, gotBook.Yes, "Yes")

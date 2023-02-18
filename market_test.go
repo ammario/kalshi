@@ -27,12 +27,10 @@ func TestMarkets(t *testing.T) {
 	t.Run("INX", func(t *testing.T) {
 		t.Parallel()
 		resp, err := client.Markets(ctx, GetMarketsRequest{
-			SeriesTicker: "INX",
-			MaxCloseTs:   int(time.Now().AddDate(0, 0, 7).Unix()),
+			SeriesTicker: "GTEMP",
 			MinCloseTs:   int(time.Now().Unix()),
 		})
 		require.NoError(t, err)
-		require.Greater(t, len(resp.Markets), 10)
-		require.Less(t, len(resp.Markets), 50)
+		require.Equal(t, len(resp.Markets), 1)
 	})
 }

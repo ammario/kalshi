@@ -2,7 +2,6 @@ package kalshi
 
 import (
 	"context"
-	"sort"
 	"testing"
 	"time"
 
@@ -37,19 +36,7 @@ func TestOrder(t *testing.T) {
 	require.True(t, exchangeStatus.ExchangeActive)
 	require.True(t, exchangeStatus.TradingActive)
 
-	resp, err := client.Markets(ctx, GetMarketsRequest{
-		SeriesTicker: "INX",
-		MaxCloseTs:   int(time.Now().AddDate(0, 0, 7).Unix()),
-		MinCloseTs:   int(time.Now().Unix()),
-	})
-	require.NoError(t, err)
-
-	// High volume markets will likely not execute my orders at 1 cent...
-	sort.Slice(resp.Markets, func(i, j int) bool {
-		return resp.Markets[i].Volume24H > resp.Markets[j].Volume24H
-	})
-
-	testMarket := resp.Markets[0]
+	testMarket := highestVolumeMarkets(ctx, t, client)[0]
 
 	book, err := client.MarketOrderBook(ctx, testMarket.Ticker)
 	require.NoError(t, err)

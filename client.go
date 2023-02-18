@@ -182,7 +182,7 @@ func New(ctx context.Context, baseURL string) (*Client, error) {
 		BaseURL: baseURL,
 		// See https://trading-api.readme.io/reference/tiers-and-rate-limits.
 		// Default to Basic access.
-		Ratelimit: rate.NewLimiter(rate.Every(time.Second*10), (10 - 1)),
+		Ratelimit: rate.NewLimiter(rate.Every(time.Second), 10),
 	}
 
 	return c, nil

@@ -6,7 +6,12 @@ Package `kalshi` provides a Go implementation of [the Kalshi API](https://tradin
 go get github.com/ammario/kalshi@master
 ```
 
-## Endpoints
+Features:
+* Streaming market data feed
+* All core API endpoints
+* Rate-limit aware
+
+## Endpoint Support
 
 ### Supported
 * Market
