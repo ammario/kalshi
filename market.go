@@ -4,9 +4,40 @@ import (
 	"context"
 	"fmt"
 	"time"
-
-	"github.com/google/go-querystring/query"
 )
+
+type Event struct {
+	Category          string    `json:"category"`
+	EventTicker       string    `json:"event_ticker"`
+	MutuallyExclusive bool      `json:"mutually_exclusive"`
+	SeriesTicker      string    `json:"series_ticker"`
+	StrikeDate        time.Time `json:"strike_date"`
+	StrikePeriod      string    `json:"strike_period"`
+	SubTitle          string    `json:"sub_title"`
+	Title             string    `json:"title"`
+}
+
+// SeriesResponse is described here:
+// https://trading-api.readme.io/reference/getevents.
+type SeriesResponse struct {
+	CursorResponse
+	Events []Event `json:"events"`
+}
+
+// SeriesRequest is described here:
+// https://trading-api.readme.io/reference/getevents.
+type SeriesRequest struct {
+	CursorRequest
+	// Status is one of "open", "closed", or "settled".
+	Status       string `url:"status,omitempty"`
+	SeriesTicker string `url:"series_ticker,omitempty"`
+}
+
+// GetSeries is described here:
+// https://trading-api.readme.io/reference/getevents.
+func (c *Client) GetSeries(ctx context.Context, req SeriesRequest) {
+
+}
 
 // GetMarketsRequest is described here:
 // https://trading-api.readme.io/reference/getmarkets.
@@ -58,25 +89,18 @@ type MarketsResponse struct {
 	CursorResponse
 }
 
+// Markets is described here:
+// https://trading-api.readme.io/reference/getmarkets.
 func (c *Client) Markets(
 	ctx context.Context,
 	opts GetMarketsRequest,
 ) (*MarketsResponse, error) {
-	if opts.Limit == 0 {
-		// Binary-searched maximum
-		opts.Limit = 100
-	}
-
-	v, err := query.Values(opts)
-	if err != nil {
-		return nil, err
-	}
-
 	var resp MarketsResponse
 
-	err = c.request(ctx, request{
+	err := c.request(ctx, request{
 		Method:       "GET",
-		Endpoint:     "markets/?" + v.Encode(),
+		Endpoint:     "markets",
+		QueryParams:  opts,
 		JSONRequest:  nil,
 		JSONResponse: &resp,
 	})
@@ -87,6 +111,8 @@ func (c *Client) Markets(
 	return &resp, nil
 }
 
+// MarketOrderBook is described here:
+// https://trading-api.readme.io/reference/getmarketorderbook.
 func (c *Client) MarketOrderBook(ctx context.Context, ticker string) (*OrderBook, error) {
 	var resp struct {
 		OrderBook OrderBook `json:"orderbook"`

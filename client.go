@@ -14,6 +14,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/google/go-querystring/query"
 	"golang.org/x/time/rate"
 )
 
@@ -49,6 +50,7 @@ type request struct {
 	CursorRequest
 	Method       string
 	Endpoint     string
+	QueryParams  any
 	JSONRequest  any
 	JSONResponse any
 }
@@ -137,12 +139,25 @@ func (c *Client) request(
 		return err
 	}
 
+	u, err := url.Parse(c.BaseURL + r.Endpoint)
+	if err != nil {
+		return err
+	}
+
+	if r.QueryParams != nil {
+		v, err := query.Values(r.QueryParams)
+		if err != nil {
+			return err
+		}
+		u.RawQuery = v.Encode()
+	}
+
 	return jsonRequestHeaders(
 		ctx,
 		c.httpClient,
 		nil,
 		r.Method,
-		c.BaseURL+r.Endpoint, r.JSONRequest, r.JSONResponse,
+		u.String(), r.JSONRequest, r.JSONResponse,
 	)
 }
 
