@@ -21,16 +21,16 @@ See the `_test.go` files for more examples.
 
 ```go
 func main() {
-  client, err := New(kalshi.APIProdURL)
+  client := New(kalshi.APIProdURL)
+  ctx := context.Background()
+  err := client.Login(
+    ctx,
+    "jill@live.com", "hunter12",
+  )
   if err != nil {
     panic(err)
   }
-
-  err := client.Login("jill@live.com", "hunter12")
-  if err != nil {
-    panic(err)
-  }
-  defer client.Logout()
+  defer client.Logout(ctx)
 
   // Get all S&P 500 markets.
   markets, err := client.Markets(ctx, kalshi.MarketsRequest{

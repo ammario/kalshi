@@ -183,10 +183,10 @@ func (t Timestamp) MarshalJSON() ([]byte, error) {
 
 // New creates a new Kalshi client. Login must be called to authenticate the
 // the client before any other request.
-func New(baseURL string) (*Client, error) {
+func New(baseURL string) *Client {
 	jar, err := cookiejar.New(nil)
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 
 	c := &Client{
@@ -199,7 +199,7 @@ func New(baseURL string) (*Client, error) {
 		Ratelimit: rate.NewLimiter(rate.Every(time.Second), 10),
 	}
 
-	return c, nil
+	return c
 }
 
 // Time is a time.Time that tolerates additional '"' characters.
