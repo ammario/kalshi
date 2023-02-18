@@ -13,17 +13,21 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ammario/arbalshi/currency"
-	"github.com/ammario/arbalshi/httpapi"
 	"github.com/google/go-querystring/query"
 	"github.com/google/uuid"
 	"tailscale.com/tstime/rate"
 )
 
-const baseURLv2 = "https://trading-api.kalshi.com/trade-api/v2/"
+const (
+	APIDemoURL = "https://demo-api.kalshi.co/trade-api/v2/"
+	APIProdURL = "https://trading-api.kalshi.com/trade-api/v2/"
+)
 
-type V2Client struct {
+type Client struct {
 	httpClient *http.Client
+
+	// BaseURL is one of APIDemoURL or APIProdURL.
+	BaseURL string
 
 	// See https://trading-api.readme.io/reference/tiers-and-rate-limits
 	Ratelimit *rate.Limiter
@@ -39,7 +43,7 @@ type CursorRequest struct {
 	Cursor string `url:"cursor,omitempty"`
 }
 
-type v2APIRequest struct {
+type request struct {
 	CursorRequest
 	Method       string
 	Endpoint     string
@@ -123,8 +127,8 @@ func jsonRequestHeaders(
 	return nil
 }
 
-func (c *V2Client) request(
-	ctx context.Context, r v2APIRequest,
+func (c *Client) request(
+	ctx context.Context, r request,
 ) error {
 	err := c.Ratelimit.Wait(ctx)
 	if err != nil {
@@ -183,7 +187,7 @@ type V2MarketsResponse struct {
 	CursorResponse
 }
 
-func (c *V2Client) Markets(
+func (c *Client) Markets(
 	ctx context.Context,
 	opts GetMarketsOptions,
 ) (*V2MarketsResponse, error) {
@@ -199,7 +203,7 @@ func (c *V2Client) Markets(
 
 	var resp V2MarketsResponse
 
-	err = c.request(ctx, v2APIRequest{
+	err = c.request(ctx, request{
 		Method:       "GET",
 		Endpoint:     "markets/?" + v.Encode(),
 		JSONRequest:  nil,
@@ -212,11 +216,11 @@ func (c *V2Client) Markets(
 	return &resp, nil
 }
 
-func (c *V2Client) MarketOrderBook(ctx context.Context, ticker string) (*OrderBook, error) {
+func (c *Client) MarketOrderBook(ctx context.Context, ticker string) (*OrderBook, error) {
 	var resp struct {
 		OrderBook OrderBook `json:"orderbook"`
 	}
-	err := c.request(ctx, v2APIRequest{
+	err := c.request(ctx, request{
 		Method:       "GET",
 		Endpoint:     fmt.Sprintf("markets/%s/orderbook/?depth=100", ticker),
 		JSONResponse: &resp,
@@ -255,7 +259,7 @@ func (c *CreateOrderRequest) String() string {
 	)
 }
 
-func (c *V2Client) CreateOrder(ctx context.Context, req CreateOrderRequest) (*UserOrder, error) {
+func (c *Client) CreateOrder(ctx context.Context, req CreateOrderRequest) (*UserOrder, error) {
 	if req.Expiration.Time().IsZero() {
 		// Otherwise, API will fail with obscure error.
 		return nil, fmt.Errorf("expiration is required")
@@ -268,7 +272,7 @@ func (c *V2Client) CreateOrder(ctx context.Context, req CreateOrderRequest) (*Us
 	var resp struct {
 		Order UserOrder `json:"order"`
 	}
-	err := c.request(ctx, v2APIRequest{
+	err := c.request(ctx, request{
 		Method:       "POST",
 		Endpoint:     "portfolio/orders",
 		JSONRequest:  req,
@@ -286,7 +290,7 @@ type OrdersRequest struct {
 	Status string `url:"status,omitempty"`
 }
 
-func (c *V2Client) Orders(ctx context.Context, req OrdersRequest) ([]UserOrder, error) {
+func (c *Client) Orders(ctx context.Context, req OrdersRequest) ([]UserOrder, error) {
 	var resp struct {
 		Orders []UserOrder `json:"orders"`
 	}
@@ -294,7 +298,7 @@ func (c *V2Client) Orders(ctx context.Context, req OrdersRequest) ([]UserOrder, 
 	if err != nil {
 		return nil, err
 	}
-	err = c.request(ctx, v2APIRequest{
+	err = c.request(ctx, request{
 		Method:       "GET",
 		Endpoint:     "portfolio/orders/?" + v.Encode(),
 		JSONResponse: &resp,
@@ -305,11 +309,13 @@ func (c *V2Client) Orders(ctx context.Context, req OrdersRequest) ([]UserOrder, 
 	return resp.Orders, nil
 }
 
-func (c *V2Client) Balance(ctx context.Context) (currency.Amount, error) {
+// Balance is described here:
+// https://trading-api.readme.io/reference/getbalance.
+func (c *Client) Balance(ctx context.Context) (Cents, error) {
 	var resp struct {
-		Balance currency.Amount `json:"balance"`
+		Balance Cents `json:"balance"`
 	}
-	err := c.request(ctx, v2APIRequest{
+	err := c.request(ctx, request{
 		Method:       "GET",
 		Endpoint:     "portfolio/balance",
 		JSONResponse: &resp,
@@ -318,22 +324,4 @@ func (c *V2Client) Balance(ctx context.Context) (currency.Amount, error) {
 		return -1, err
 	}
 	return resp.Balance, nil
-}
-
-type ExchangeStatus struct {
-	ExchangeActive bool `json:"exchange_active,omitempty"`
-	TradingActive  bool `json:"trading_active,omitempty"`
-}
-
-func (c *V2Client) ExchangeStatus(ctx context.Context) (*ExchangeStatus, error) {
-	var resp ExchangeStatus
-	err := c.request(ctx, v2APIRequest{
-		Method:       "GET",
-		Endpoint:     "exchange/status",
-		JSONResponse: &resp,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &resp, nil
 }

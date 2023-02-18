@@ -1,11 +1,40 @@
 package kalshi
 
 import (
+	"context"
+	"os"
 	"testing"
 
-	"github.com/ammario/arbalshi/currency"
 	"github.com/stretchr/testify/require"
 )
+
+func testClient(t *testing.T) *Client {
+	const (
+		emailEnv = "KALSHI_EMAIL"
+		passEnv  = "KALSHI_PASSWORD"
+	)
+
+	ctx := context.Background()
+
+	email, ok := os.LookupEnv(emailEnv)
+	if !ok {
+		t.Fatalf("no $%s provided", emailEnv)
+	}
+	password, ok := os.LookupEnv(passEnv)
+	if !ok {
+		t.Fatalf("no $%s provided", passEnv)
+	}
+
+	c, err := New(ctx, APIDemoURL)
+	require.NoError(t, err)
+
+	_, err = c.Login(ctx, LoginRequest{
+		Email:    email,
+		Password: password,
+	})
+	require.NoError(t, err)
+	return c
+}
 
 func TestOrderBook(t *testing.T) {
 	book := OrderBook{
@@ -21,13 +50,13 @@ func TestOrderBook(t *testing.T) {
 	require.False(t, ok)
 
 	var (
-		price currency.Amount
+		price Cents
 	)
 
 	// Since order is small, should execute at best price.
 	price, ok = book.Yes.BestPrice(10)
 	require.True(t, ok)
-	require.Equal(t, currency.Make(0, 97), price)
+	require.Equal(t, 97, price)
 
 	// Order too large
 	_, ok = book.Yes.BestPrice(4000)
@@ -36,15 +65,15 @@ func TestOrderBook(t *testing.T) {
 	// Order is large, executes at worst price
 	price, ok = book.Yes.BestPrice(3000)
 	require.True(t, ok)
-	require.Equal(t, currency.Make(0, 99), price)
+	require.Equal(t, 99, price)
 
 	// Order is large, executes at worst price
 	price, ok = book.Yes.BestPrice(3000)
 	require.True(t, ok)
-	require.Equal(t, currency.Make(0, 99), price)
+	require.Equal(t, 99, price)
 
 	// Order is mid-size, executes at median price.
 	price, ok = book.Yes.BestPrice(650)
 	require.True(t, ok)
-	require.Equal(t, currency.Make(0, 98), price)
+	require.Equal(t, 98, price)
 }

@@ -7,67 +7,51 @@ import (
 	"math"
 	"net/http"
 	"net/http/cookiejar"
-	"os"
+	"strconv"
 	"time"
 
 	"golang.org/x/time/rate"
 )
 
-type kalshiLoginRequest struct {
-	Email    string `json:"email,omitempty"`
-	Password string `json:"password,omitempty"`
+// timestmap represents a UNIX timestamp in seconds suitable for the Kalshi
+// JSON HTTP API.
+type timestamp time.Time
+
+func (t timestamp) Time() time.Time {
+	return time.Time(t)
 }
 
-type kalshiLoginResponse struct {
-	Token  string `json:"token,omitempty"`
-	UserID string `json:"user_id,omitempty"`
-}
-
-func NewFromEnv(ctx context.Context) (*V2Client, error) {
-	const (
-		emailEnv = "KALSHI_EMAIL"
-		passEnv  = "KALSHI_PASSWORD"
-	)
-
-	email, ok := os.LookupEnv(emailEnv)
-	if !ok {
-		return nil, fmt.Errorf("no $%s provided", emailEnv)
+func (t *timestamp) UnmarshalJSON(byt []byte) error {
+	secs, err := strconv.Atoi(string(byt))
+	if err != nil {
+		return err
 	}
-	password, ok := os.LookupEnv(passEnv)
-	if !ok {
-		return nil, fmt.Errorf("no $%s provided", passEnv)
-	}
-	return New(ctx, email, password)
+	*t = timestamp(time.Unix(int64(secs), 0))
+	return nil
 }
 
-func New(ctx context.Context, email, password string) (*V2Client, error) {
+func (t timestamp) MarshalJSON() ([]byte, error) {
+	return []byte(strconv.Itoa(int(time.Time(t).UTC().Unix()))), nil
+}
+
+// New creates a new Kalshi client. Login must be called to authenticate the
+// the client before any other request.
+func New(ctx context.Context, baseURL string) (*Client, error) {
 	jar, err := cookiejar.New(nil)
 	if err != nil {
 		return nil, err
 	}
 
-	c := &V2Client{
+	c := &Client{
 		httpClient: &http.Client{
 			Jar: jar,
 		},
+		BaseURL: baseURL,
 		// See https://trading-api.readme.io/reference/tiers-and-rate-limits.
+		// Default to Basic access.
 		Ratelimit: rate.NewLimiter(rate.Every(time.Second*10), (10 - 1)),
 	}
 
-	var resp kalshiLoginResponse
-	err = c.request(ctx, v2APIRequest{
-		Method:   "POST",
-		Endpoint: "login",
-		JSONRequest: kalshiLoginRequest{
-			Email:    email,
-			Password: password,
-		},
-		JSONResponse: &resp,
-	})
-	if err != nil {
-		return nil, err
-	}
-	c.userID = resp.UserID
 	return c, nil
 }
 
@@ -175,15 +159,4 @@ type MarketPosition struct {
 	TotalCost          int    `json:"total_cost"`
 	UserID             string `json:"user_id"`
 	Volume             int    `json:"volume"`
-}
-
-func (c *V1Client) AllMarketPositions(ctx context.Context) (
-	[]MarketPosition, error,
-) {
-	var resp struct {
-		MarketPositions []MarketPosition `json:"market_positions"`
-	}
-
-	err := c.requestv1(ctx, "GET", "users/"+c.userID+"/positions", nil, &resp)
-	return resp.MarketPositions, err
 }

@@ -265,11 +265,11 @@ func (f *Stream) Close() error {
 	return f.c.Close(websocket.StatusNormalClosure, "")
 }
 
-func (c *V2Client) Stream(ctx context.Context) (*Stream, error) {
+func (c *Client) Stream(ctx context.Context) (*Stream, error) {
 	conn, resp, err := websocket.Dial(ctx,
 		"wss://trading-api.kalshi.com/trade-api/ws/v2",
 		&websocket.DialOptions{
-			HTTPClient: c.v1.httpClient,
+			HTTPClient: c.httpClient,
 		},
 	)
 	if err != nil {

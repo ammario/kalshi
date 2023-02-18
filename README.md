@@ -1,6 +1,6 @@
 # kalshi
 
-`kalshi` provides a Go implementation of [the Kalshi API](https://trading-api.readme.io/reference/getting-started).
+Package `kalshi` provides a Go implementation of [the Kalshi API](https://trading-api.readme.io/reference/getting-started).
 
 ## Endpoints
 

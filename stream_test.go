@@ -70,7 +70,7 @@ func Test_orderBookStreamState(t *testing.T) {
 	})
 }
 
-func highestVolumeMarkets(ctx context.Context, t *testing.T, client *V2Client) []V2Market {
+func highestVolumeMarkets(ctx context.Context, t *testing.T, client *Client) []V2Market {
 	var (
 		markets []V2Market
 		cursor  string
@@ -119,8 +119,7 @@ func TestStream(t *testing.T) {
 
 	ctx := context.Background()
 
-	client, err := NewFromEnv(ctx)
-	require.NoError(t, err)
+	client := testClient(t, ctx)
 
 	markets := highestVolumeMarkets(ctx, t, client)
 

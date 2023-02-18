@@ -6,21 +6,19 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ammario/arbalshi/httpapi"
 	"github.com/stretchr/testify/require"
 )
 
-func Test_V2Markets(t *testing.T) {
+func TestMarkets(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
 
-	client, err := NewFromEnv(ctx)
-	require.NoError(t, err)
+	client := testClient(t, ctx)
 
 	t.Run("NoOptions", func(t *testing.T) {
 		t.Parallel()
-		resp, err := client.V2().Markets(ctx, GetMarketsOptions{})
+		resp, err := client.Markets(ctx, GetMarketsOptions{})
 		require.NoError(t, err)
 		// 100 is the maximum default limit.
 		require.Len(t, resp.Markets, 100)
@@ -29,7 +27,7 @@ func Test_V2Markets(t *testing.T) {
 
 	t.Run("INX", func(t *testing.T) {
 		t.Parallel()
-		resp, err := client.V2().Markets(ctx, GetMarketsOptions{
+		resp, err := client.Markets(ctx, GetMarketsOptions{
 			SeriesTicker: "INX",
 			MaxCloseTs:   int(time.Now().AddDate(0, 0, 7).Unix()),
 			MinCloseTs:   int(time.Now().Unix()),
@@ -45,7 +43,7 @@ func Test_V2Balance(t *testing.T) {
 
 	ctx := context.Background()
 
-	clientv1, err := NewFromEnv(ctx)
+	clientv1, err := testClient(t)
 	require.NoError(t, err)
 	client := clientv1.V2()
 
@@ -55,14 +53,12 @@ func Test_V2Balance(t *testing.T) {
 	t.Logf("balance: %v", b)
 }
 
-func Test_V2Order(t *testing.T) {
+func TestOrder(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
+	client := testClient(t)
 
-	clientv1, err := NewFromEnv(ctx)
-	require.NoError(t, err)
-	client := clientv1.V2()
+	ctx := context.Background()
 
 	exchangeStatus, err := client.ExchangeStatus(ctx)
 	require.NoError(t, err)
