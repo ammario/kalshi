@@ -1,5 +1,7 @@
 # kalshi
 [![Go Reference](https://pkg.go.dev/badge/github.com/ammario/kalshi.svg)](https://pkg.go.dev/github.com/ammario/kalshi@master)
+![Go workflow status](https://github.com/ammario/kalshi/.github/workflows/go.yaml/badge.svg)
+
 
 Package `kalshi` provides a Go implementation of [the Kalshi API](https://trading-api.readme.io/reference/getting-started).
 
@@ -7,39 +9,62 @@ Package `kalshi` provides a Go implementation of [the Kalshi API](https://tradin
 go get github.com/ammario/kalshi@master
 ```
 
-Features:
+Supports:
 * Streaming market data feed
 * All core API endpoints
-* Rate-limit aware
+* Rate-limits
+* Pagination
 
 ## Endpoint Support
 
-### Supported
-* Market
-  * GetMarkets
-  * GetTrades
-  * GetMarket
-  * GetMarketHistory
-  * GetMarketOrderbook
-  * GetSeries 
-* Exchange
-  * GetExchangeStatus 
-* Auth
-  * Login
-  * Logout
-* Portfolio
-  * GetBalance 
-  * GetOrders
-  * CreateOrder
-  * GetOrder
-  * CancelOrder
-* Market Data Feed (streaming)
+### Markets
 
-### TODO
+`kalshi` supports all Market endpoints.
 
-* Portfolio
-    * BatchCreateOrders
-    * BatchCancelOrders
-    * DecreaseOrder
-    * GetPositions
-    * GetPortolioSettlements 
+| Endpoint           | Support Status |
+| ------------------ | -------------- |
+| GetSeries          | ✅              |
+| GetEvent           | ✅              |
+| GetMarkets         | ✅              |
+| GetTrades          | ✅              |
+| GetMarket          | ✅              |
+| GetMarketHistory   | ✅              |
+| GetMarketOrderbook | ✅              |
+| GetSeries          | ✅              |
+
+### Exchange
+`kalshi` supports all Exchange endpoints.
+
+| Endpoint          | Support Status |
+| ----------------- | -------------- |
+| GetExchangeStatus | ✅              |
+
+### Auth
+
+`kalshi` supports all Auth endpoints.
+
+| Endpoint | Support Status |
+| -------- | -------------- |
+| Login    | ✅              |
+| Logout   | ✅              |
+
+### Portfolio
+
+`kalshi` has mixed support for Portfolio endpoints.
+
+| Endpoint               | Support Status |
+| ---------------------- | -------------- |
+| GetBalance             | ✅              |
+| GetOrders              | ✅              |
+| CreateOrder            | ✅              |
+| GetOrder               | ✅              |
+| CancelOrder            | ✅              |
+| BatchCreateOrders      | ❌              |
+| BatchCancelOrders      | ❌              |
+| DecreaseOrder          | ❌              |
+| GetPositions           | ❌              |
+| GetPortolioSettlements | ❌              |
+
+### Market Data Feed 
+
+[Market Data Feed](https://trading-api.readme.io/reference/introduction) is supported, although it hasn't been thoroughly tested. You may open a feed through `(*Client).Feed()`.
