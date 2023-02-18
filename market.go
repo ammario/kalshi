@@ -8,17 +8,20 @@ import (
 	"github.com/google/go-querystring/query"
 )
 
-type GetMarketsOptions struct {
+// GetMarketsRequest is described here:
+// https://trading-api.readme.io/reference/getmarkets.
+type GetMarketsRequest struct {
 	CursorRequest
 	EventTicker  string `url:"event_ticker,omitempty"`
 	SeriesTicker string `url:"series_ticker,omitempty"`
 	MaxCloseTs   int    `url:"max_close_ts,omitempty"`
 	MinCloseTs   int    `url:"min_close_ts,omitempty"`
 	// Status is one of "open", "closed", and "settled"
-	Status string `url:"status,omitempty"`
+	Status  string   `url:"status,omitempty"`
+	Tickers []string `url:"status,omitempty"`
 }
 
-type V2Market struct {
+type Market struct {
 	Ticker          string    `json:"ticker"`
 	EventTicker     string    `json:"event_ticker"`
 	Subtitle        string    `json:"subtitle"`
@@ -48,15 +51,17 @@ type V2Market struct {
 	CapStrike       float64   `json:"cap_strike,omitempty"`
 }
 
-type V2MarketsResponse struct {
-	Markets []V2Market
-	CursorResponse
+// MarketsResponse is described here:
+// https://trading-api.readme.io/reference/getmarkets.
+type MarketsResponse struct {
+	Markets        []Market `json:"markets,omitempty"`
+	CursorResponse `json:"cursor_response,omitempty"`
 }
 
 func (c *Client) Markets(
 	ctx context.Context,
-	opts GetMarketsOptions,
-) (*V2MarketsResponse, error) {
+	opts GetMarketsRequest,
+) (*MarketsResponse, error) {
 	if opts.Limit == 0 {
 		// Binary-searched maximum
 		opts.Limit = 100
@@ -67,7 +72,7 @@ func (c *Client) Markets(
 		return nil, err
 	}
 
-	var resp V2MarketsResponse
+	var resp MarketsResponse
 
 	err = c.request(ctx, request{
 		Method:       "GET",

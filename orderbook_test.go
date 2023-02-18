@@ -7,6 +7,8 @@ import (
 )
 
 func TestOrderBook(t *testing.T) {
+	t.Parallel()
+
 	book := OrderBook{
 		Yes: OrderBookDirection{
 			{1, 2500},

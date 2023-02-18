@@ -12,7 +12,7 @@ import (
 	"nhooyr.io/websocket/wsjson"
 )
 
-type Stream struct {
+type Feed struct {
 	c *websocket.Conn
 }
 
@@ -26,7 +26,7 @@ type command struct {
 	Params  commandParams `json:"params,omitempty"`
 }
 
-func (s *Stream) sendCommand(ctx context.Context, c command) error {
+func (s *Feed) sendCommand(ctx context.Context, c command) error {
 	return wsjson.Write(ctx, s.c, c)
 }
 
@@ -167,7 +167,7 @@ type StreamOrderBook struct {
 }
 
 // Book instantiates a streaming order book feed for market.
-func (s *Stream) Book(ctx context.Context, marketTicker string, feed chan<- *StreamOrderBook) error {
+func (s *Feed) Book(ctx context.Context, marketTicker string, feed chan<- *StreamOrderBook) error {
 	id := 1
 	err := s.sendCommand(ctx, command{
 		ID:      1,
@@ -261,11 +261,11 @@ func (s *Stream) Book(ctx context.Context, marketTicker string, feed chan<- *Str
 	}
 }
 
-func (f *Stream) Close() error {
+func (f *Feed) Close() error {
 	return f.c.Close(websocket.StatusNormalClosure, "")
 }
 
-func (c *Client) Stream(ctx context.Context) (*Stream, error) {
+func (c *Client) Feed(ctx context.Context) (*Feed, error) {
 	conn, resp, err := websocket.Dial(ctx,
 		"wss://trading-api.kalshi.com/trade-api/ws/v2",
 		&websocket.DialOptions{
@@ -279,5 +279,5 @@ func (c *Client) Stream(ctx context.Context) (*Stream, error) {
 		return nil, fmt.Errorf("websocket refused: %v", resp.Status)
 	}
 
-	return &Stream{c: conn}, nil
+	return &Feed{c: conn}, nil
 }

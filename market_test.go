@@ -17,7 +17,7 @@ func TestMarkets(t *testing.T) {
 
 	t.Run("NoOptions", func(t *testing.T) {
 		t.Parallel()
-		resp, err := client.Markets(ctx, GetMarketsOptions{})
+		resp, err := client.Markets(ctx, GetMarketsRequest{})
 		require.NoError(t, err)
 		// 100 is the maximum default limit.
 		require.Len(t, resp.Markets, 100)
@@ -26,7 +26,7 @@ func TestMarkets(t *testing.T) {
 
 	t.Run("INX", func(t *testing.T) {
 		t.Parallel()
-		resp, err := client.Markets(ctx, GetMarketsOptions{
+		resp, err := client.Markets(ctx, GetMarketsRequest{
 			SeriesTicker: "INX",
 			MaxCloseTs:   int(time.Now().AddDate(0, 0, 7).Unix()),
 			MinCloseTs:   int(time.Now().Unix()),

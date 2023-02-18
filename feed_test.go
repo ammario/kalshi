@@ -70,14 +70,14 @@ func Test_orderBookStreamState(t *testing.T) {
 	})
 }
 
-func highestVolumeMarkets(ctx context.Context, t *testing.T, client *Client) []V2Market {
+func highestVolumeMarkets(ctx context.Context, t *testing.T, client *Client) []Market {
 	var (
-		markets []V2Market
+		markets []Market
 		cursor  string
 	)
 	startFind := time.Now()
 	for {
-		resp, err := client.Markets(ctx, GetMarketsOptions{
+		resp, err := client.Markets(ctx, GetMarketsRequest{
 			CursorRequest: CursorRequest{
 				Cursor: cursor,
 			},
@@ -108,14 +108,12 @@ func highestVolumeMarkets(ctx context.Context, t *testing.T, client *Client) []V
 	return markets
 }
 
-func TestStream(t *testing.T) {
+func TestFeed(t *testing.T) {
 	t.Parallel()
 
 	if testing.Short() {
 		t.SkipNow()
 	}
-
-	t.Skip("sus")
 
 	ctx := context.Background()
 
@@ -160,7 +158,7 @@ func TestStream(t *testing.T) {
 
 		t.Logf("highest volume market: %+v %v (24h) %v (all time)", m.Ticker, m.Volume24H, m.Volume)
 
-		s, err := client.Stream(ctx)
+		s, err := client.Feed(ctx)
 		require.NoError(t, err)
 		defer s.Close()
 

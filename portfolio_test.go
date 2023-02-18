@@ -37,7 +37,7 @@ func TestOrder(t *testing.T) {
 	require.True(t, exchangeStatus.ExchangeActive)
 	require.True(t, exchangeStatus.TradingActive)
 
-	resp, err := client.Markets(ctx, GetMarketsOptions{
+	resp, err := client.Markets(ctx, GetMarketsRequest{
 		SeriesTicker: "INX",
 		MaxCloseTs:   int(time.Now().AddDate(0, 0, 7).Unix()),
 		MinCloseTs:   int(time.Now().Unix()),
