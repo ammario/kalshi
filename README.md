@@ -1,5 +1,5 @@
 # kalshi
-[![Go Reference](https://pkg.go.dev/badge/github.com/ammario/kalshi.svg)](https://pkg.go.dev/github.com/ammario/kalshi@main)
+[![Go Reference](https://pkg.go.dev/badge/github.com/ammario/kalshi.svg)](https://pkg.go.dev/github.com/ammario/kalshi)
 ![Go workflow status](https://github.com/ammario/kalshi/actions/workflows/go.yaml/badge.svg)
 [![codecov](https://codecov.io/gh/ammario/kalshi/branch/main/graph/badge.svg?token=1SBIWOG23L)](https://codecov.io/gh/ammario/kalshi)
 
@@ -7,14 +7,14 @@
 Package `kalshi` provides a Go implementation of [the Kalshi API](https://trading-api.readme.io/reference/getting-started).
 
 ```
-go get github.com/ammario/kalshi@main
+go get github.com/ammario/kalshi
 ```
 
 Supports:
 * Streaming market data feed
 * All core API endpoints
 * Rate-limits
-* Pagination
+* Cursor-based pagination
 
 ## Endpoint Support
 

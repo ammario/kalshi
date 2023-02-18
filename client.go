@@ -23,13 +23,12 @@ const (
 	APIProdURL = "https://trading-api.kalshi.com/trade-api/v2/"
 )
 
-// Cents is a safety type to present dollars from being accidently passed into
+// Cents is a safety type to prevent dollars from being accidently passed into
 // the API.
 type Cents = int
 
 type Client struct {
 	httpClient *http.Client
-
 	// BaseURL is one of APIDemoURL or APIProdURL.
 	BaseURL string
 
