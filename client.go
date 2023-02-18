@@ -202,15 +202,6 @@ func New(baseURL string) (*Client, error) {
 	return c, nil
 }
 
-type RulebookVariables struct {
-	AboveBelowBetween string `json:"Above/Below/Between"`
-	CapStrike         string `json:"Cap_strike"`
-	Date              string `json:"Date"`
-	FloorStrike       string `json:"Floor_strike"`
-	Value             string `json:"Value"`
-	ContractTicker    string `json:"contract_ticker"`
-}
-
 // Time is a time.Time that tolerates additional '"' characters.
 // Kalshi API endpoints use both RFC3339 and POSIX
 // timestamps.
