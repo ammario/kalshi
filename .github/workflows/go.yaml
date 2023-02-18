@@ -3,8 +3,7 @@ name: Go
 on: [push]
 
 jobs:
-  build:
-
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -16,3 +15,6 @@ jobs:
 
       - name: Test
         run: go test -v ./...
+        env:
+          KALSHI_PASSWORD: ${{ secrets.KALSHI_PASSWORD }}
+          KALSHI_EMAIL: ${{ secrets.KALSHI_EMAIL }}
