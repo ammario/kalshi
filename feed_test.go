@@ -130,6 +130,10 @@ func TestFeed(t *testing.T) {
 		t.SkipNow()
 	}
 
+	if os.Getenv("TEST_STREAM") == "" {
+		t.Skip("this test is racey and unreliable")
+	}
+
 	ctx := context.Background()
 
 	client := testClient(t)

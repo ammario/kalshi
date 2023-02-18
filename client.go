@@ -226,6 +226,7 @@ func (t *Time) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+// Side is either Yes or No.
 type Side string
 
 const (
