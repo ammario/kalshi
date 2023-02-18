@@ -119,7 +119,7 @@ func TestStream(t *testing.T) {
 
 	ctx := context.Background()
 
-	client := testClient(t, ctx)
+	client := testClient(t)
 
 	markets := highestVolumeMarkets(ctx, t, client)
 

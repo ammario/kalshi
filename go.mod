@@ -18,6 +18,6 @@ require (
 require (
 	github.com/google/go-querystring v1.1.0
 	github.com/stretchr/testify v1.8.1
-	golang.org/x/time v0.3.0
+	golang.org/x/time v0.0.0-20220609170525-579cf78fd858
 	nhooyr.io/websocket v1.8.7
 )

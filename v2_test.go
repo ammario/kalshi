@@ -103,7 +103,7 @@ func TestOrder(t *testing.T) {
 		createReq := CreateOrderRequest{
 			Action:     "buy",
 			Count:      1,
-			Expiration: httpapi.Timestamp(time.Now().Add(time.Minute)),
+			Expiration: timestamp(time.Now().Add(time.Minute)),
 			Ticker:     testMarket.Ticker,
 			BuyMaxCost: 1,
 			Type:       "market",

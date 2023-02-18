@@ -3,15 +3,140 @@ package kalshi
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
 	"math"
 	"net/http"
 	"net/http/cookiejar"
+	"net/http/httputil"
+	"net/url"
+	"os"
 	"strconv"
 	"time"
 
 	"golang.org/x/time/rate"
 )
+
+type Client struct {
+	httpClient *http.Client
+
+	// BaseURL is one of APIDemoURL or APIProdURL.
+	BaseURL string
+
+	// See https://trading-api.readme.io/reference/tiers-and-rate-limits
+	Ratelimit *rate.Limiter
+}
+
+type CursorResponse struct {
+	Cursor string `json:"cursor"`
+}
+
+type CursorRequest struct {
+	Limit  int    `url:"limit,omitempty"`
+	Cursor string `url:"cursor,omitempty"`
+}
+
+type request struct {
+	CursorRequest
+	Method       string
+	Endpoint     string
+	JSONRequest  any
+	JSONResponse any
+}
+
+func jsonRequestHeaders(
+	ctx context.Context,
+	client *http.Client,
+	headers http.Header,
+	method string, reqURL string,
+	jsonReq interface{}, jsonResp interface{},
+) error {
+	reqBodyByt, err := json.Marshal(jsonReq)
+	if err != nil {
+		return err
+	}
+
+	req, err := http.NewRequest(method, reqURL, bytes.NewReader(reqBodyByt))
+	if err != nil {
+		return err
+	}
+	if headers != nil {
+		req.Header = headers
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	respBodyByt, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	reqDump, err := httputil.DumpRequest(req, false)
+	if err != nil {
+		return err
+	}
+
+	respDump, err := httputil.DumpResponse(resp, false)
+	if err != nil {
+		return fmt.Errorf("dump: %w", err)
+	}
+	var dumpErr = fmt.Sprintf("Request\n%s%s\nResponse\n%s%s",
+		reqDump,
+		reqBodyByt,
+		respDump,
+		respBodyByt,
+	)
+
+	if resp.StatusCode >= 400 {
+		return fmt.Errorf(
+			"unexpected status: %s\n%s",
+			resp.Status,
+			dumpErr,
+		)
+	} else if os.Getenv("KALSHI_HTTP_DEBUG") != "" {
+		fmt.Printf("REQUEST DUMP\n%s\n", dumpErr)
+	}
+
+	if client.Jar != nil {
+		u, err := url.Parse(reqURL)
+		if err != nil {
+			return err
+		}
+		client.Jar.SetCookies(u, resp.Cookies())
+	}
+
+	if jsonResp != nil {
+		err = json.Unmarshal(respBodyByt, jsonResp)
+		if err != nil {
+			return fmt.Errorf("unmarshal: %w\n%s", err, dumpErr)
+		}
+	}
+	return nil
+}
+
+func (c *Client) request(
+	ctx context.Context, r request,
+) error {
+	err := c.Ratelimit.Wait(ctx)
+	if err != nil {
+		return err
+	}
+
+	return jsonRequestHeaders(
+		ctx,
+		c.httpClient,
+		nil,
+		r.Method,
+		c.BaseURL+r.Endpoint, r.JSONRequest, r.JSONResponse,
+	)
+}
 
 // timestmap represents a UNIX timestamp in seconds suitable for the Kalshi
 // JSON HTTP API.
