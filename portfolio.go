@@ -329,17 +329,17 @@ type Settlement struct {
 	YesTotalCost int       `json:"yes_total_cost"`
 }
 
-// PortfolioSettlementsResponse is described here:
+// SettlementsResponse is described here:
 // https://trading-api.readme.io/reference/getportfoliosettlements.
-type PortfolioSettlementsResponse struct {
+type SettlementsResponse struct {
 	CursorResponse
 	Settlements []Settlement `json:"settlements"`
 }
 
 // Settlements is described here:
 // https://trading-api.readme.io/reference/getportfoliosettlements.
-func (c *Client) Settlements(ctx context.Context, req SettlementsRequest) (*PortfolioSettlementsResponse, error) {
-	var resp PortfolioSettlementsResponse
+func (c *Client) Settlements(ctx context.Context, req SettlementsRequest) (*SettlementsResponse, error) {
+	var resp SettlementsResponse
 	err := c.request(ctx, request{
 		Method:       "GET",
 		Endpoint:     "portfolio/settlements",

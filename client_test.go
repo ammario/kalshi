@@ -29,7 +29,7 @@ func testClient(t *testing.T) *Client {
 		t.Fatalf("no $%s provided", passEnv)
 	}
 
-	c, err := New(ctx, APIDemoURL)
+	c, err := New(APIDemoURL)
 	require.NoError(t, err)
 	c.Ratelimit = rateLimit
 	_, err = c.Login(ctx, LoginRequest{

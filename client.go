@@ -183,7 +183,7 @@ func (t timestamp) MarshalJSON() ([]byte, error) {
 
 // New creates a new Kalshi client. Login must be called to authenticate the
 // the client before any other request.
-func New(ctx context.Context, baseURL string) (*Client, error) {
+func New(baseURL string) (*Client, error) {
 	jar, err := cookiejar.New(nil)
 	if err != nil {
 		return nil, err
@@ -211,6 +211,9 @@ type RulebookVariables struct {
 	ContractTicker    string `json:"contract_ticker"`
 }
 
+// Time is a time.Time that tolerates additional '"' characters.
+// Kalshi API endpoints use both RFC3339 and POSIX
+// timestamps.
 type Time struct {
 	time.Time
 }
