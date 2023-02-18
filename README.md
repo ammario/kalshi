@@ -35,7 +35,7 @@ func main() {
   // Get all S&P 500 markets.
   markets, err := client.Markets(ctx, kalshi.MarketsRequest{
     SeriesTicker: "INX"
-  }),
+  })
   if err != nil {
     panic(err)
   }
