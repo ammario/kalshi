@@ -59,9 +59,9 @@ type EventResponse struct {
 	Markets []Market `json:"markets"`
 }
 
-// GetEvent is described here:
+// Event is described here:
 // https://trading-api.readme.io/reference/getevent.
-func (c *Client) GetEvent(ctx context.Context, event string) (*EventResponse, error) {
+func (c *Client) Event(ctx context.Context, event string) (*EventResponse, error) {
 	var resp EventResponse
 
 	err := c.request(ctx, request{
@@ -76,9 +76,9 @@ func (c *Client) GetEvent(ctx context.Context, event string) (*EventResponse, er
 	return &resp, nil
 }
 
-// GetMarketsRequest is described here:
+// MarketsRequest is described here:
 // https://trading-api.readme.io/reference/getmarkets.
-type GetMarketsRequest struct {
+type MarketsRequest struct {
 	CursorRequest
 	EventTicker  string `url:"event_ticker,omitempty"`
 	SeriesTicker string `url:"series_ticker,omitempty"`
@@ -130,7 +130,7 @@ type MarketsResponse struct {
 // https://trading-api.readme.io/reference/getmarkets.
 func (c *Client) Markets(
 	ctx context.Context,
-	req GetMarketsRequest,
+	req MarketsRequest,
 ) (*MarketsResponse, error) {
 	var resp MarketsResponse
 
@@ -169,7 +169,9 @@ type TradesResponse struct {
 // https://trading-api.readme.io/reference/gettrades.
 type TradesRequest struct {
 	CursorRequest
-	Trades []Trade `json:"trades"`
+	Ticker string `url:"ticker,omitempty"`
+	MinTS  int    `url:"min_ts,omitempty"`
+	MaxTS  int    `url:"max_ts,omitempty"`
 }
 
 // Trades is described here:

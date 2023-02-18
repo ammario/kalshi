@@ -89,7 +89,7 @@ func highestVolumeMarkets(ctx context.Context, t *testing.T, client *Client) []M
 	)
 	startFind := time.Now()
 	for {
-		resp, err := client.Markets(ctx, GetMarketsRequest{
+		resp, err := client.Markets(ctx, MarketsRequest{
 			CursorRequest: CursorRequest{
 				Cursor: cursor,
 			},
