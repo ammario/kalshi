@@ -34,3 +34,14 @@ func (c *Client) Login(ctx context.Context, req LoginRequest) (*LoginResponse, e
 	}
 	return &resp, nil
 }
+
+// Logout is described here:
+// https://trading-api.readme.io/reference/logout.
+func (c *Client) Logout(ctx context.Context) error {
+	return c.request(ctx, request{
+		Method:       "POST",
+		Endpoint:     "logout",
+		JSONRequest:  nil,
+		JSONResponse: nil,
+	})
+}
