@@ -1,26 +1,49 @@
 package kalshi
 
 import (
+	"encoding/json"
 	"fmt"
 	"math"
 )
 
-type OrderBookDirection [][2]int
+type OrderBookSide []OrderBookBid
+
+type OrderBookBid struct {
+	Price    Cents
+	Quantity int
+}
+
+func (o OrderBookBid) MarshalJSON() ([]byte, error) {
+	return []byte(fmt.Sprintf("[%d,%d]", o.Price, o.Quantity)), nil
+}
+
+func (o *OrderBookBid) UnmarshalJSON(b []byte) error {
+	var raw [2]int
+	err := json.Unmarshal(b, &raw)
+	if err != nil {
+		return err
+	}
+	*o = OrderBookBid{
+		Price:    Cents(raw[0]),
+		Quantity: raw[1],
+	}
+	return nil
+}
 
 // BestPrice returns the best price for average execution.
-func (b OrderBookDirection) BestPrice(wantQuantity int) (Cents, bool) {
+func (b OrderBookSide) BestPrice(wantQuantity int) (Cents, bool) {
 	var (
 		foundQuantity int
 		weightedCum   int
-		price         int
+		price         Cents
 	)
 
 	// The best priced options are at the end of the book.
 	// Range in reverse
 	for i := len(b) - 1; i >= 0; i-- {
 		line := b[i]
-		price = 100 - line[0]
-		quantity := line[1]
+		price = Cents(100) - line.Price
+		quantity := line.Quantity
 
 		// If we're above wantQuatity, we reduce the amount we're going to
 		// take.
@@ -29,7 +52,7 @@ func (b OrderBookDirection) BestPrice(wantQuantity int) (Cents, bool) {
 		}
 
 		foundQuantity += quantity
-		weightedCum += quantity * price
+		weightedCum += quantity * int(price)
 
 		if foundQuantity == wantQuantity {
 			// We round up to be conservative.
@@ -45,6 +68,6 @@ func (b OrderBookDirection) BestPrice(wantQuantity int) (Cents, bool) {
 // It is described here:
 // https://trading-api.readme.io/reference/getmarketorderbook.
 type OrderBook struct {
-	Yes OrderBookDirection `json:"yes"`
-	No  OrderBookDirection `json:"no"`
+	YesBids OrderBookSide `json:"yes"`
+	NoBids  OrderBookSide `json:"no"`
 }
