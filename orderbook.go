@@ -66,7 +66,7 @@ func (b OrderBookBids) totalOffers() int {
 	return total
 }
 
-func (b OrderBookBids) availableQuantity(limitPrice Cents) int {
+func (b OrderBookBids) offersUnderLimit(limitPrice Cents) int {
 	quantity := 0
 	for i := len(b) - 1; i >= 0; i-- {
 		if 100-b[i].Price > limitPrice {
@@ -77,16 +77,16 @@ func (b OrderBookBids) availableQuantity(limitPrice Cents) int {
 	return quantity
 }
 
-// YesAvailableUnderLimit is the quantity of Yes contracts available to be taken
+// YesOffersUnderLimit is the quantity of Yes contracts available to be taken
 // at a price less than or equal to the given limit.
-func (b OrderBook) YesAvailableUnderLimit(limit Cents) int {
-	return b.NoBids.availableQuantity(limit)
+func (b OrderBook) YesOffersUnderLimit(limit Cents) int {
+	return b.NoBids.offersUnderLimit(limit)
 }
 
-// NoAvailableUnderLimit is the quantity of No contracts available to be taken
+// NoOffersUnderLimit is the quantity of No contracts available to be taken
 // at a price less than or equal to the given limit.
-func (b OrderBook) NoAvailableUnderLimit(limit Cents) int {
-	return b.YesBids.availableQuantity(limit)
+func (b OrderBook) NoOffersUnderLimit(limit Cents) int {
+	return b.YesBids.offersUnderLimit(limit)
 }
 
 // BestYesTake returns the best average
@@ -101,7 +101,8 @@ func (b OrderBook) BestNoTake(quantity int) (Cents, bool) {
 	return b.YesBids.bestPrice(quantity)
 }
 
-// bestPrice returns the best price for average execution.
+// bestPrice returns the best average asking price that a slice of bids
+// provides to the opposite side of the market.
 func (b OrderBookBids) bestPrice(wantQuantity int) (Cents, bool) {
 	var (
 		foundQuantity int

@@ -1,6 +1,7 @@
 package kalshi
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -58,9 +59,25 @@ func TestOrderBook(t *testing.T) {
 	offers = book.YesTotalOffers()
 	require.Equal(t, 0, offers)
 
-	offers = book.NoAvailableUnderLimit(Cents(98))
+	offers = book.NoOffersUnderLimit(Cents(98))
 	require.Equal(t, 600, offers)
 
-	offers = book.YesAvailableUnderLimit(Cents(0))
+	offers = book.YesOffersUnderLimit(Cents(0))
 	require.Equal(t, 0, offers)
+}
+
+func TestParseOrderBook(t *testing.T) {
+	t.Parallel()
+	var book OrderBook
+	str := `{"yes": [[19, 132], [18, 58]], "no": []}`
+
+	err := json.Unmarshal([]byte(str), &book)
+	require.NoError(t, err)
+	require.Equal(t, OrderBook{
+		YesBids: OrderBookBids{
+			{Cents(19), 132},
+			{Cents(18), 58},
+		},
+		NoBids: OrderBookBids{},
+	}, book)
 }
