@@ -49,8 +49,8 @@ type orderBookSnapshot struct {
 	subscriptionMessageHeader
 	Msg struct {
 		MarketID string        `json:"market_id"`
-		Yes      OrderBookSide `json:"yes"`
-		No       OrderBookSide `json:"no"`
+		Yes      OrderBookBids `json:"yes"`
+		No       OrderBookBids `json:"no"`
 	} `json:"msg"`
 }
 
@@ -94,7 +94,7 @@ func makeOrderBookStreamState(marketID string) orderBookStreamState {
 }
 
 // sortOrderBook performs an in-place sort of OrderBook.
-func sortOrderBookDirection(dir OrderBookSide) {
+func sortOrderBookDirection(dir OrderBookBids) {
 	sort.Slice(dir, func(i, j int) bool {
 		return dir[i].Price < dir[j].Price
 	})

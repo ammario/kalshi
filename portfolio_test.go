@@ -42,7 +42,7 @@ func TestOrder(t *testing.T) {
 	require.NoError(t, err)
 	t.Logf("book for %s: %+v", testMarket.Ticker, book)
 	if len(book.NoBids) > 0 {
-		bestPrice, ok := book.NoBids.BestPrice(1)
+		bestPrice, ok := book.NoBids.bestPrice(1)
 		if ok {
 			t.Logf("best price: %v", bestPrice)
 		}
