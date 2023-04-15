@@ -89,15 +89,15 @@ func (b OrderBook) NoOffersUnderLimit(limit Cents) int {
 	return b.YesBids.offersUnderLimit(limit)
 }
 
-// BestYesTake returns the best average
+// BestYesOffer returns the best average
 // asking price for Yes contracts given a desired quantity.
-func (b OrderBook) BestYesTake(quantity int) (Cents, bool) {
+func (b OrderBook) BestYesOffer(quantity int) (Cents, bool) {
 	return b.NoBids.bestPrice(quantity)
 }
 
-// BestNoTake returns the best average
+// BestNoOffer returns the best average
 // asking price for No contracts given a desired quantity.
-func (b OrderBook) BestNoTake(quantity int) (Cents, bool) {
+func (b OrderBook) BestNoOffer(quantity int) (Cents, bool) {
 	return b.YesBids.bestPrice(quantity)
 }
 

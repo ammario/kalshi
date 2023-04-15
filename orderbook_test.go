@@ -19,31 +19,31 @@ func TestOrderBook(t *testing.T) {
 	}
 
 	// No book
-	_, ok := book.BestYesTake(100)
+	_, ok := book.BestYesOffer(100)
 	require.False(t, ok)
 
 	var price Cents
 
 	// Since order is small, should execute at best price.
-	price, ok = book.BestNoTake(10)
+	price, ok = book.BestNoOffer(10)
 	require.True(t, ok)
 	require.Equal(t, Cents(97), price)
 
 	// Order too large
-	_, ok = book.BestNoTake(4000)
+	_, ok = book.BestNoOffer(4000)
 	require.False(t, ok)
 
 	// Order is large, executes at worst price
-	price, ok = book.BestNoTake(3000)
+	price, ok = book.BestNoOffer(3000)
 	require.True(t, ok)
 	require.Equal(t, Cents(99), price)
 
 	// Order is large, executes at worst price
-	price, ok = book.BestNoTake(3000)
+	price, ok = book.BestNoOffer(3000)
 	require.True(t, ok)
 	require.Equal(t, Cents(99), price)
 
-	price, ok = book.BestNoTake(600)
+	price, ok = book.BestNoOffer(600)
 	require.True(t, ok)
 	require.Equal(t, Cents(98), price)
 
