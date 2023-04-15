@@ -36,7 +36,7 @@ const (
 // https://trading-api.readme.io/reference/createorder.
 type CreateOrderRequest struct {
 	Action        OrderAction `json:"action,omitempty"`
-	BuyMaxCost    int         `json:"buy_max_cost,omitempty"`
+	BuyMaxCost    Cents       `json:"buy_max_cost,omitempty"`
 	Count         int         `json:"count,omitempty"`
 	Expiration    *Timestamp  `json:"expiration_ts,omitempty"`
 	NoPrice       Cents       `json:"no_price,omitempty"`
@@ -124,20 +124,20 @@ type Order struct {
 	FccCancelCount   int         `json:"fcc_cancel_count"`
 	LastUpdateTime   *Time       `json:"last_update_time"`
 	MakerFillCount   int         `json:"maker_fill_count"`
-	NoPrice          int         `json:"no_price"`
+	NoPrice          Cents       `json:"no_price"`
 	OrderID          string      `json:"order_id"`
 	PlaceCount       int         `json:"place_count"`
 	QueuePosition    int         `json:"queue_position"`
 	RemainingCount   int         `json:"remaining_count"`
 	Side             Side        `json:"side"`
 	Status           OrderStatus `json:"status"`
-	TakerFees        int         `json:"taker_fees"`
-	TakerFillCost    int         `json:"taker_fill_cost"`
+	TakerFees        Cents       `json:"taker_fees"`
+	TakerFillCost    Cents       `json:"taker_fill_cost"`
 	TakerFillCount   int         `json:"taker_fill_count"`
 	Ticker           string      `json:"ticker"`
 	Type             OrderType   `json:"type"`
 	UserID           string      `json:"user_id"`
-	YesPrice         int         `json:"yes_price"`
+	YesPrice         Cents       `json:"yes_price"`
 }
 
 // Orders is described here:
@@ -183,16 +183,16 @@ func (c *Client) Balance(ctx context.Context) (Cents, error) {
 // Fill is described here:
 // https://trading-api.readme.io/reference/getfills.
 type Fill struct {
-	Action      string    `json:"action"`
-	Count       int       `json:"count"`
-	CreatedTime time.Time `json:"created_time"`
-	IsTaker     bool      `json:"is_taker"`
-	NoPrice     int       `json:"no_price"`
-	OrderID     string    `json:"order_id"`
-	Side        string    `json:"side"`
-	Ticker      string    `json:"ticker"`
-	TradeID     string    `json:"trade_id"`
-	YesPrice    int       `json:"yes_price"`
+	Action      OrderAction `json:"action"`
+	Count       int         `json:"count"`
+	CreatedTime time.Time   `json:"created_time"`
+	IsTaker     bool        `json:"is_taker"`
+	NoPrice     Cents       `json:"no_price"`
+	OrderID     string      `json:"order_id"`
+	Side        Side        `json:"side"`
+	Ticker      string      `json:"ticker"`
+	TradeID     string      `json:"trade_id"`
+	YesPrice    Cents       `json:"yes_price"`
 }
 
 // FillsRequest is described here:

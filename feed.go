@@ -60,7 +60,7 @@ type orderBookDelta struct {
 		MarketID string `json:"market_id"`
 		Price    Cents  `json:"price"`
 		Delta    int    `json:"delta"`
-		Side     string `json:"side"`
+		Side     Side   `json:"side"`
 	}
 }
 
@@ -139,11 +139,11 @@ func (o *orderBookStreamState) OrderBook() *StreamOrderBook {
 	return &ob
 }
 
-func (o *orderBookStreamState) ApplyDelta(side string, price Cents, delta int) error {
+func (o *orderBookStreamState) ApplyDelta(side Side, price Cents, delta int) error {
 	var dir map[Cents]int
-	if side == "yes" {
+	if side == Yes {
 		dir = o.Yes
-	} else if side == "no" {
+	} else if side == No {
 		dir = o.No
 	} else {
 		return fmt.Errorf("unknown side: %v", side)
