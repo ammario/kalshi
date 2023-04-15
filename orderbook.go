@@ -149,7 +149,7 @@ func conservativeRound(a float64) int {
 // Make sure you understand the market structure before using this struct.
 // A central feature of the Kalshi contract model is that a No bid corresponds
 // to a Yes ask of the complementary price. That is, a No bid at 40 cents
-// is eqivalent to a Yes ask at 60 cents. This OrderBook type is a
+// is equivalent to a Yes ask at 60 cents. This OrderBook type is a
 // a list of bids on either side.
 //
 // Detailed documentation can be found here:
