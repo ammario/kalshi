@@ -30,10 +30,14 @@ func (o *OrderBookBid) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+// YesLiquidity returns the total sum required to buy all available
+// Yes contracts on the market.
 func (b OrderBook) YesLiquidity() Cents {
 	return b.NoBids.liquidity()
 }
 
+// NoLiquidity returns the total sum required to buy all available
+// No contracts on the market.
 func (b OrderBook) NoLiquidity() Cents {
 	return b.YesBids.liquidity()
 }
@@ -58,6 +62,8 @@ func (b OrderBookBids) liquidity() Cents {
 	return liquidity
 }
 
+// totalOffers sums the quantity of contracts available to takers on the
+// opposite side of the market.
 func (b OrderBookBids) totalOffers() int {
 	total := 0
 	for i := 0; i < len(b); i++ {
@@ -66,6 +72,8 @@ func (b OrderBookBids) totalOffers() int {
 	return total
 }
 
+// offersUnderLimit sums the quantity of contracts available to takers on the
+// opposite side of the market at a price less than or equal to the given limit.
 func (b OrderBookBids) offersUnderLimit(limitPrice Cents) int {
 	quantity := 0
 	for i := len(b) - 1; i >= 0; i-- {
@@ -148,7 +156,7 @@ func conservativeRound(a float64) int {
 //
 // Make sure you understand the market structure before using this struct.
 // A central feature of the Kalshi contract model is that a No bid corresponds
-// to a Yes ask of the complementary price. That is, a No bid at 40 cents
+// to a Yes ask of the complementary price and vice versa. That is, a No bid at 40 cents
 // is equivalent to a Yes ask at 60 cents. This OrderBook type is a
 // a list of bids on either side.
 //

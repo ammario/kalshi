@@ -26,11 +26,8 @@ const (
 type Cents int
 
 func (c Cents) String() string {
-	return fmt.Sprintf("$%.2f", c.Dollars())
-}
-
-func (c Cents) Dollars() float32 {
-	return float32(c) / 100
+	dollars := float32(c) / 100
+	return fmt.Sprintf("$%.2f", dollars)
 }
 
 // Client must be instantiated via New.
