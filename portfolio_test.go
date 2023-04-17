@@ -71,7 +71,7 @@ func TestOrder(t *testing.T) {
 		t.Logf("created order: %+v", order)
 		require.True(t, order.ExpirationTime.After((time.Now())))
 		// Market order should execute immediately.
-		require.Equal(t, "executed", order.Status)
+		require.Equal(t, Executed, order.Status)
 		t.Run("Fills", func(t *testing.T) {
 			t.Skip("Doesn't seem to work?")
 			fills, err := client.Fills(ctx, FillsRequest{
@@ -140,7 +140,7 @@ func TestOrder(t *testing.T) {
 		t.Run("Cancel", func(t *testing.T) {
 			order, err := client.CancelOrder(ctx, order.OrderID)
 			require.NoError(t, err)
-			require.Equal(t, order.Status, "canceled")
+			require.Equal(t, Canceled, order.Status)
 		})
 	})
 }
