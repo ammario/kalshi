@@ -23,9 +23,12 @@ const (
 	APIProdURL = "https://trading-api.kalshi.com/trade-api/v2/"
 )
 
-// Cents is a safety type to prevent dollars from being accidently passed into
-// the API.
-type Cents = int
+type Cents int
+
+func (c Cents) String() string {
+	dollars := float32(c) / 100
+	return fmt.Sprintf("$%.2f", dollars)
+}
 
 // Client must be instantiated via New.
 type Client struct {
@@ -60,7 +63,7 @@ func jsonRequestHeaders(
 	client *http.Client,
 	headers http.Header,
 	method string, reqURL string,
-	jsonReq interface{}, jsonResp interface{},
+	jsonReq any, jsonResp any,
 ) error {
 	reqBodyByt, err := json.Marshal(jsonReq)
 	if err != nil {

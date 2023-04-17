@@ -17,18 +17,18 @@ func Test_orderBookStreamState(t *testing.T) {
 
 	sob := makeOrderBookStreamState("duh")
 
-	requireBook := func(wantYes [][2]int, wantNo [][2]int) {
+	requireBook := func(wantYes []OrderBookBid, wantNo []OrderBookBid) {
 		book := sob.OrderBook()
 		require.WithinDuration(t, time.Now(), book.LoadedAt, time.Millisecond*10)
-		require.EqualValues(t, wantYes, book.Yes, "yes")
-		require.EqualValues(t, wantNo, book.No, "no")
+		require.EqualValues(t, wantYes, book.YesBids, "yes")
+		require.EqualValues(t, wantNo, book.NoBids, "no")
 	}
 
 	// Add entry
 	err := sob.ApplyDelta("yes", 10, 20)
 	require.NoError(t, err)
 
-	requireBook([][2]int{
+	requireBook([]OrderBookBid{
 		{10, 20},
 	}, nil)
 
@@ -45,9 +45,9 @@ func Test_orderBookStreamState(t *testing.T) {
 	err = sob.ApplyDelta("no", 11, 21)
 	require.NoError(t, err)
 
-	requireBook([][2]int{
+	requireBook([]OrderBookBid{
 		{10, 20},
-	}, [][2]int{
+	}, []OrderBookBid{
 		{11, 21},
 	})
 
@@ -58,26 +58,26 @@ func Test_orderBookStreamState(t *testing.T) {
 	err = sob.ApplyDelta("no", 10, 21)
 	require.NoError(t, err)
 
-	requireBook([][2]int{
+	requireBook([]OrderBookBid{
 		{9, 20},
 		{10, 20},
-	}, [][2]int{
+	}, []OrderBookBid{
 		{10, 21},
 		{11, 21},
 	})
 
 	// Load book
 	sob.LoadBook(OrderBook{
-		Yes: [][2]int{
+		YesBids: []OrderBookBid{
 			{19, 8},
 		},
-		No: [][2]int{
+		NoBids: []OrderBookBid{
 			{20, 9},
 		},
 	})
-	requireBook([][2]int{
+	requireBook([]OrderBookBid{
 		{19, 8},
-	}, [][2]int{
+	}, []OrderBookBid{
 		{20, 9},
 	})
 }
@@ -155,12 +155,12 @@ func TestFeed(t *testing.T) {
 			wantBook, err = client.MarketOrderBook(ctx, marketTicker)
 			require.NoError(t, err)
 
-			return reflect.DeepEqual(wantBook.No, gotBook.No) && reflect.DeepEqual(wantBook.Yes, gotBook.Yes)
+			return reflect.DeepEqual(wantBook.NoBids, gotBook.NoBids) && reflect.DeepEqual(wantBook.YesBids, gotBook.YesBids)
 		}, time.Second*10, time.Second)
 
 		// This gives a pretty error.
-		require.Equal(t, wantBook.Yes, gotBook.Yes, "Yes")
-		require.Equal(t, wantBook.No, gotBook.No, "No")
+		require.Equal(t, wantBook.YesBids, gotBook.YesBids, "Yes")
+		require.Equal(t, wantBook.NoBids, gotBook.NoBids, "No")
 	}
 
 	longStreamOrSkip := func(t *testing.T) {

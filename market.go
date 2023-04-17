@@ -101,23 +101,23 @@ type Market struct {
 	CloseTime       time.Time `json:"close_time"`
 	ExpirationTime  time.Time `json:"expiration_time"`
 	Status          string    `json:"status"`
-	YesBid          int       `json:"yes_bid"`
-	YesAsk          int       `json:"yes_ask"`
-	NoBid           int       `json:"no_bid"`
-	NoAsk           int       `json:"no_ask"`
-	LastPrice       int       `json:"last_price"`
-	PreviousYesBid  int       `json:"previous_yes_bid"`
-	PreviousYesAsk  int       `json:"previous_yes_ask"`
-	PreviousPrice   int       `json:"previous_price"`
+	YesBid          Cents     `json:"yes_bid"`
+	YesAsk          Cents     `json:"yes_ask"`
+	NoBid           Cents     `json:"no_bid"`
+	NoAsk           Cents     `json:"no_ask"`
+	LastPrice       Cents     `json:"last_price"`
+	PreviousYesBid  Cents     `json:"previous_yes_bid"`
+	PreviousYesAsk  Cents     `json:"previous_yes_ask"`
+	PreviousPrice   Cents     `json:"previous_price"`
 	Volume          int       `json:"volume"`
 	Volume24H       int       `json:"volume_24h"`
-	Liquidity       int       `json:"liquidity"`
+	Liquidity       Cents     `json:"liquidity"`
 	OpenInterest    int       `json:"open_interest"`
 	Result          string    `json:"result"`
 	CanCloseEarly   bool      `json:"can_close_early"`
 	ExpirationValue string    `json:"expiration_value"`
 	Category        string    `json:"category"`
-	RiskLimitCents  int       `json:"risk_limit_cents"`
+	RiskLimit       Cents     `json:"risk_limit_cents"`
 	StrikeType      string    `json:"strike_type"`
 	FloorStrike     float64   `json:"floor_strike,omitempty"`
 	CapStrike       float64   `json:"cap_strike,omitempty"`
@@ -157,11 +157,11 @@ func (c *Client) Markets(
 type Trade struct {
 	Count       int       `json:"count"`
 	CreatedTime time.Time `json:"created_time"`
-	NoPrice     int       `json:"no_price"`
-	TakerSide   string    `json:"taker_side"`
+	NoPrice     Cents     `json:"no_price"`
+	TakerSide   Side      `json:"taker_side"`
 	Ticker      string    `json:"ticker"`
 	TradeID     string    `json:"trade_id"`
-	YesPrice    int       `json:"yes_price"`
+	YesPrice    Cents     `json:"yes_price"`
 }
 
 // TradesResponse is described here:
@@ -221,14 +221,14 @@ func (c *Client) Market(ctx context.Context, ticker string) (*Market, error) {
 // MarketHistory is described here:
 // https://trading-api.readme.io/reference/getmarkethistory.
 type MarketHistory struct {
-	NoAsk        int       `json:"no_ask"`
-	NoBid        int       `json:"no_bid"`
+	NoAsk        Cents     `json:"no_ask"`
+	NoBid        Cents     `json:"no_bid"`
 	OpenInterest int       `json:"open_interest"`
 	Ts           Timestamp `json:"ts"`
 	Volume       int       `json:"volume"`
-	YesAsk       int       `json:"yes_ask"`
-	YesBid       int       `json:"yes_bid"`
-	YesPrice     int       `json:"yes_price"`
+	YesAsk       Cents     `json:"yes_ask"`
+	YesBid       Cents     `json:"yes_bid"`
+	YesPrice     Cents     `json:"yes_price"`
 }
 
 // MarketHistoryResponse is described here:

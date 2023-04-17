@@ -48,9 +48,9 @@ type subscribedResponse struct {
 type orderBookSnapshot struct {
 	subscriptionMessageHeader
 	Msg struct {
-		MarketID string             `json:"market_id"`
-		Yes      OrderBookDirection `json:"yes"`
-		No       OrderBookDirection `json:"no"`
+		MarketID string        `json:"market_id"`
+		Yes      OrderBookBids `json:"yes"`
+		No       OrderBookBids `json:"no"`
 	} `json:"msg"`
 }
 
@@ -58,9 +58,9 @@ type orderBookDelta struct {
 	subscriptionMessageHeader
 	Msg struct {
 		MarketID string `json:"market_id"`
-		Price    int    `json:"price"`
+		Price    Cents  `json:"price"`
 		Delta    int    `json:"delta"`
-		Side     string `json:"side"`
+		Side     Side   `json:"side"`
 	}
 }
 
@@ -81,22 +81,22 @@ type subscriptionMessageHeader struct {
 // orderBookStreamState is kept by Book and serialized into OrderBook.
 type orderBookStreamState struct {
 	MarketID string
-	Yes      map[int]int
-	No       map[int]int
+	Yes      map[Cents]int
+	No       map[Cents]int
 }
 
 func makeOrderBookStreamState(marketID string) orderBookStreamState {
 	return orderBookStreamState{
 		MarketID: marketID,
-		Yes:      make(map[int]int),
-		No:       make(map[int]int),
+		Yes:      make(map[Cents]int),
+		No:       make(map[Cents]int),
 	}
 }
 
 // sortOrderBook performs an in-place sort of OrderBook.
-func sortOrderBookDirection(dir OrderBookDirection) {
+func sortOrderBookDirection(dir OrderBookBids) {
 	sort.Slice(dir, func(i, j int) bool {
-		return dir[i][0] < dir[j][0]
+		return dir[i].Price < dir[j].Price
 	})
 }
 
@@ -110,12 +110,12 @@ func (o *orderBookStreamState) LoadBook(book OrderBook) {
 	clear(o.Yes)
 	clear(o.No)
 
-	for _, v := range book.Yes {
-		o.Yes[v[0]] = v[1]
+	for _, v := range book.YesBids {
+		o.Yes[v.Price] = v.Quantity
 	}
 
-	for _, v := range book.No {
-		o.No[v[0]] = v[1]
+	for _, v := range book.NoBids {
+		o.No[v.Price] = v.Quantity
 	}
 }
 
@@ -127,23 +127,23 @@ func (o *orderBookStreamState) OrderBook() *StreamOrderBook {
 	}
 
 	for k, v := range o.Yes {
-		ob.Yes = append(ob.Yes, [2]int{k, v})
+		ob.YesBids = append(ob.YesBids, OrderBookBid{Price: k, Quantity: v})
 	}
 	for k, v := range o.No {
-		ob.No = append(ob.No, [2]int{k, v})
+		ob.NoBids = append(ob.NoBids, OrderBookBid{Price: k, Quantity: v})
 	}
 
-	sortOrderBookDirection(ob.No)
-	sortOrderBookDirection(ob.Yes)
+	sortOrderBookDirection(ob.NoBids)
+	sortOrderBookDirection(ob.YesBids)
 
 	return &ob
 }
 
-func (o *orderBookStreamState) ApplyDelta(side string, price, delta int) error {
-	var dir map[int]int
-	if side == "yes" {
+func (o *orderBookStreamState) ApplyDelta(side Side, price Cents, delta int) error {
+	var dir map[Cents]int
+	if side == Yes {
 		dir = o.Yes
-	} else if side == "no" {
+	} else if side == No {
 		dir = o.No
 	} else {
 		return fmt.Errorf("unknown side: %v", side)
@@ -235,8 +235,8 @@ func (s *Feed) Book(ctx context.Context, marketTicker string, feed chan<- *Strea
 				return fmt.Errorf("unmarshal snapshot: %w", err)
 			}
 			ob := OrderBook{
-				Yes: snapshot.Msg.Yes,
-				No:  snapshot.Msg.No,
+				YesBids: snapshot.Msg.Yes,
+				NoBids:  snapshot.Msg.No,
 			}
 			orderBookState.LoadBook(ob)
 			feed <- orderBookState.OrderBook()

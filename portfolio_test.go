@@ -41,15 +41,15 @@ func TestOrder(t *testing.T) {
 	book, err := client.MarketOrderBook(ctx, testMarket.Ticker)
 	require.NoError(t, err)
 	t.Logf("book for %s: %+v", testMarket.Ticker, book)
-	if len(book.No) > 0 {
-		bestPrice, ok := book.No.BestPrice(1)
+	if len(book.NoBids) > 0 {
+		bestPrice, ok := book.NoBids.bestPrice(1)
 		if ok {
 			t.Logf("best price: %v", bestPrice)
 		}
 	}
 
 	orders, err := client.Orders(ctx, OrdersRequest{
-		Status: "resting",
+		Status: Resting,
 		Ticker: testMarket.Ticker,
 	})
 	require.NoError(t, err)
@@ -57,12 +57,12 @@ func TestOrder(t *testing.T) {
 
 	t.Run("Market", func(t *testing.T) {
 		createReq := CreateOrderRequest{
-			Action:     "buy",
+			Action:     Buy,
 			Count:      1,
-			Expiration: Timestamp(time.Now().Add(time.Minute)),
+			Expiration: ExpireAfter(time.Minute),
 			Ticker:     testMarket.Ticker,
 			BuyMaxCost: 1,
-			Type:       "market",
+			Type:       MarketOrder,
 			Side:       Yes,
 		}
 		t.Logf("create req: %+v", createReq.String())
@@ -71,7 +71,7 @@ func TestOrder(t *testing.T) {
 		t.Logf("created order: %+v", order)
 		require.True(t, order.ExpirationTime.After((time.Now())))
 		// Market order should execute immediately.
-		require.Equal(t, "executed", order.Status)
+		require.Equal(t, Executed, order.Status)
 		t.Run("Fills", func(t *testing.T) {
 			t.Skip("Doesn't seem to work?")
 			fills, err := client.Fills(ctx, FillsRequest{
@@ -86,12 +86,12 @@ func TestOrder(t *testing.T) {
 	t.Run("Limit", func(t *testing.T) {
 		// Testing limit
 		createReq := CreateOrderRequest{
-			Action:     "buy",
+			Action:     Buy,
 			Count:      2,
-			Expiration: Timestamp(time.Now().Add(time.Minute)),
+			Expiration: ExpireAfter(time.Minute),
 			Ticker:     testMarket.Ticker,
 			YesPrice:   1,
-			Type:       "limit",
+			Type:       LimitOrder,
 			Side:       Yes,
 		}
 		order, err := client.CreateOrder(ctx, createReq)
@@ -107,7 +107,7 @@ func TestOrder(t *testing.T) {
 
 		require.Eventually(t, func() bool {
 			orders, err = client.Orders(ctx, OrdersRequest{
-				Status: "resting",
+				Status: Resting,
 				Ticker: testMarket.Ticker,
 			})
 			require.NoError(t, err)
@@ -140,7 +140,7 @@ func TestOrder(t *testing.T) {
 		t.Run("Cancel", func(t *testing.T) {
 			order, err := client.CancelOrder(ctx, order.OrderID)
 			require.NoError(t, err)
-			require.Equal(t, order.Status, "canceled")
+			require.Equal(t, Canceled, order.Status)
 		})
 	})
 }
