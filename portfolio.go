@@ -55,9 +55,13 @@ func (c *CreateOrderRequest) String() string {
 	} else {
 		price = c.NoPrice
 	}
+	expire := "never"
+	if c.Expiration != nil {
+		expire = fmt.Sprintf("in %v", time.Until(c.Expiration.Time()))
+	}
 	return fmt.Sprintf(
-		"%v %v %v at %v cents, expires in %v, max cost is %v",
-		c.Action, c.Count, strings.ToUpper(string(c.Side)), price, time.Until(c.Expiration.Time()), c.BuyMaxCost,
+		"%v %v %v at %v, expires %s, max cost is %v",
+		c.Action, c.Count, strings.ToUpper(string(c.Side)), price, expire, c.BuyMaxCost,
 	)
 }
 
