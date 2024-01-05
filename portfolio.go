@@ -47,6 +47,17 @@ type CreateOrderRequest struct {
 	Side          Side        `json:"side"`
 }
 
+// SetPrice sets the price of the order based on its side.
+func (c *CreateOrderRequest) SetPrice(p Cents) {
+	if c.Side == Yes {
+		c.YesPrice = p
+	} else if c.Side == No {
+		c.NoPrice = p
+	}
+
+	panic("invalid side: " + string(c.Side))
+}
+
 // String returns a human-readable representation of the order.
 func (c *CreateOrderRequest) String() string {
 	var price Cents
@@ -142,6 +153,15 @@ type Order struct {
 	Type             OrderType   `json:"type"`
 	UserID           string      `json:"user_id"`
 	YesPrice         Cents       `json:"yes_price"`
+}
+
+func (o *Order) Price() Cents {
+	if o.Side == Yes {
+		return o.YesPrice
+	} else if o.Side == No {
+		return o.NoPrice
+	}
+	panic("invalid side: " + string(o.Side))
 }
 
 // Orders is described here:
