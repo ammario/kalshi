@@ -49,13 +49,14 @@ type CreateOrderRequest struct {
 
 // SetPrice sets the price of the order based on its side.
 func (c *CreateOrderRequest) SetPrice(p Cents) {
-	if c.Side == Yes {
+	switch c.Side {
+	case Yes:
 		c.YesPrice = p
-	} else if c.Side == No {
+	case No:
 		c.NoPrice = p
+	default:
+		panic("invalid side: " + string(c.Side))
 	}
-
-	panic("invalid side: " + string(c.Side))
 }
 
 // String returns a human-readable representation of the order.
