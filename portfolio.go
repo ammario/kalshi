@@ -59,6 +59,17 @@ func (c *CreateOrderRequest) SetPrice(p Cents) {
 	}
 }
 
+func (o *CreateOrderRequest) Price() Cents {
+	switch o.Side {
+	case Yes:
+		return o.YesPrice
+	case No:
+		return o.NoPrice
+	default:
+		panic("invalid side: " + string(o.Side))
+	}
+}
+
 // String returns a human-readable representation of the order.
 func (c *CreateOrderRequest) String() string {
 	var price Cents
