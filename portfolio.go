@@ -371,6 +371,31 @@ type MarketPosition struct {
 	MarketExposure Cents `json:"market_exposure"`
 }
 
+func (p *MarketPosition) AvgPrice() Cents {
+	if p.Position == 0 {
+		return -1
+	}
+	return p.MarketExposure / Cents(p.Position)
+}
+
+func (p *MarketPosition) String() string {
+	if p == nil {
+		return "N/A"
+	}
+	var avgCost Cents
+	if p.Position != 0 {
+		avgCost = p.MarketExposure / Cents(p.Position)
+		if avgCost < 0 {
+			avgCost = -avgCost
+		}
+	}
+	return fmt.Sprintf(
+		"n: %d\texp:\t%v\tcost: %v\trest: %v\treal: %v\tfee: %v",
+		p.Position, p.MarketExposure, avgCost, p.RestingOrdersCount, p.RealizedPnl,
+		p.FeesPaid,
+	)
+}
+
 // PositionsResponse is described here:
 // https://trading-api.readme.io/reference/getpositions.
 type PositionsResponse struct {

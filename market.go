@@ -123,6 +123,24 @@ type Market struct {
 	CapStrike       float64   `json:"cap_strike,omitempty"`
 }
 
+// EstimateReturn shows the estimated return for an open position.
+func (m *Market) EstimateReturn(p *MarketPosition) Cents {
+	if p == nil {
+		return 0
+	}
+
+	var posMarketValue Cents
+
+	if p.Position < 0 {
+		posMarketValue = Cents(p.Position) * m.NoAsk
+		posMarketValue = -posMarketValue
+	} else {
+		posMarketValue = Cents(p.Position) * m.YesBid
+	}
+	costBasis := p.MarketExposure
+	return p.RealizedPnl - p.FeesPaid + (posMarketValue - costBasis)
+}
+
 // MarketsResponse is described here:
 // https://trading-api.readme.io/reference/getmarkets.
 type MarketsResponse struct {
