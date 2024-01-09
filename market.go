@@ -123,6 +123,14 @@ type Market struct {
 	CapStrike       float64   `json:"cap_strike,omitempty"`
 }
 
+func (m *Market) YesMidPrice() Cents {
+	return (m.YesBid + m.YesAsk) / 2
+}
+
+func (m *Market) NoMidPrice() Cents {
+	return (m.NoBid + m.NoAsk) / 2
+}
+
 // EstimateReturn shows the estimated return for an open position.
 func (m *Market) EstimateReturn(p *MarketPosition) Cents {
 	if p == nil {
@@ -132,10 +140,10 @@ func (m *Market) EstimateReturn(p *MarketPosition) Cents {
 	var posMarketValue Cents
 
 	if p.Position < 0 {
-		posMarketValue = Cents(p.Position) * m.NoAsk
+		posMarketValue = Cents(p.Position) * m.NoMidPrice()
 		posMarketValue = -posMarketValue
 	} else {
-		posMarketValue = Cents(p.Position) * m.YesBid
+		posMarketValue = Cents(p.Position) * m.YesMidPrice()
 	}
 	costBasis := p.MarketExposure
 	return p.RealizedPnl - p.FeesPaid + (posMarketValue - costBasis)
