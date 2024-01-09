@@ -30,7 +30,7 @@ func testClient(t *testing.T) *Client {
 	}
 
 	c := New(APIDemoURL)
-	c.Ratelimit = rateLimit
+	c.WriteRatelimit = rateLimit
 	_, err := c.Login(ctx, LoginRequest{
 		Email:    email,
 		Password: password,

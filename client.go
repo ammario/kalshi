@@ -35,8 +35,10 @@ type Client struct {
 	// BaseURL is one of APIDemoURL or APIProdURL.
 	BaseURL string
 
-	// See https://trading-api.readme.io/reference/tiers-and-rate-limits
-	Ratelimit  *rate.Limiter
+	// See https://trading-api.readme.io/reference/tiers-and-rate-limits.
+	WriteRatelimit *rate.Limiter
+	ReadRateLimit  *rate.Limiter
+
 	httpClient *http.Client
 }
 
@@ -137,11 +139,6 @@ func jsonRequestHeaders(
 func (c *Client) request(
 	ctx context.Context, r request,
 ) error {
-	err := c.Ratelimit.Wait(ctx)
-	if err != nil {
-		return err
-	}
-
 	u, err := url.Parse(c.BaseURL + r.Endpoint)
 	if err != nil {
 		return err
@@ -153,6 +150,18 @@ func (c *Client) request(
 			return err
 		}
 		u.RawQuery = v.Encode()
+	}
+
+	if r.Method == "GET" {
+		err = c.ReadRateLimit.Wait(ctx)
+		if err != nil {
+			return err
+		}
+	} else {
+		err = c.WriteRatelimit.Wait(ctx)
+		if err != nil {
+			return err
+		}
 	}
 
 	return jsonRequestHeaders(
@@ -184,6 +193,10 @@ func (t Timestamp) MarshalJSON() ([]byte, error) {
 	return []byte(strconv.Itoa(int(time.Time(t).UTC().Unix()))), nil
 }
 
+func basicRateLimit() *rate.Limiter {
+	return rate.NewLimiter(rate.Every(time.Second), 10)
+}
+
 // New creates a new Kalshi client. Login must be called to authenticate the
 // the client before any other request.
 func New(baseURL string) *Client {
@@ -199,7 +212,8 @@ func New(baseURL string) *Client {
 		BaseURL: baseURL,
 		// See https://trading-api.readme.io/reference/tiers-and-rate-limits.
 		// Default to Basic access.
-		Ratelimit: rate.NewLimiter(rate.Every(time.Second), 10),
+		WriteRatelimit: basicRateLimit(),
+		ReadRateLimit:  basicRateLimit(),
 	}
 
 	return c

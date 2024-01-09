@@ -390,8 +390,8 @@ func (p *MarketPosition) String() string {
 		}
 	}
 	return fmt.Sprintf(
-		"n: %d\texp:\t%v\tcost: %v\trest: %v\treal: %v\tfee: %v",
-		p.Position, p.MarketExposure, avgCost, p.RestingOrdersCount, p.RealizedPnl,
+		"n: %d (+%d)\texp:\t%v\tcost: %v\treal: %v\tfee: %v",
+		p.Position, p.RestingOrdersCount, p.MarketExposure, avgCost, p.RealizedPnl,
 		p.FeesPaid,
 	)
 }
