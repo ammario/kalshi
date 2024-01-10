@@ -152,15 +152,15 @@ func (c *Client) request(
 		u.RawQuery = v.Encode()
 	}
 
+	// Do not block via Wait! Trades have to be
+	// fast to be meaningful!
 	if r.Method == "GET" {
-		err = c.ReadRateLimit.Wait(ctx)
-		if err != nil {
-			return err
+		if !c.ReadRateLimit.Allow() {
+			return fmt.Errorf("read ratelimit exceeded")
 		}
 	} else {
-		err = c.WriteRatelimit.Wait(ctx)
-		if err != nil {
-			return err
+		if !c.WriteRatelimit.Allow() {
+			return fmt.Errorf("write ratelimit exceeded")
 		}
 	}
 
