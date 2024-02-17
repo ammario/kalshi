@@ -131,20 +131,24 @@ func (m *Market) NoMidPrice() Cents {
 	return (m.NoBid + m.NoAsk) / 2
 }
 
+func (m *Market) MarketValue(p *MarketPosition) Cents {
+	if p == nil {
+		return 0
+	}
+
+	if p.Position < 0 {
+		return Cents(p.AbsPosition()) * m.NoMidPrice()
+	}
+	return Cents(p.AbsPosition()) * m.YesMidPrice()
+}
+
 // EstimateReturn shows the estimated return for an open position.
 func (m *Market) EstimateReturn(p *MarketPosition) Cents {
 	if p == nil {
 		return 0
 	}
 
-	var posMarketValue Cents
-
-	if p.Position < 0 {
-		posMarketValue = Cents(p.Position) * m.NoMidPrice()
-		posMarketValue = -posMarketValue
-	} else {
-		posMarketValue = Cents(p.Position) * m.YesMidPrice()
-	}
+	posMarketValue := m.MarketValue(p)
 	costBasis := p.MarketExposure
 	return p.RealizedPnl - p.FeesPaid + (posMarketValue - costBasis)
 }

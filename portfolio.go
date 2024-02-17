@@ -3,6 +3,7 @@ package kalshi
 import (
 	"context"
 	"fmt"
+	"math"
 	"strings"
 	"time"
 
@@ -378,6 +379,13 @@ func (p *MarketPosition) AvgPrice() Cents {
 	return p.MarketExposure / Cents(p.Position)
 }
 
+func (p *MarketPosition) AbsPosition() int {
+	if p.Position < 0 {
+		return -p.Position
+	}
+	return p.Position
+}
+
 func (p *MarketPosition) String() string {
 	if p == nil {
 		return "N/A"
@@ -389,9 +397,14 @@ func (p *MarketPosition) String() string {
 			avgCost = -avgCost
 		}
 	}
+
+	posSign := "+"
+	if p.Position < 0 {
+		posSign = "-"
+	}
 	return fmt.Sprintf(
-		"n: %d (+%d)\texp:\t%v\tcost: %v\treal: %v\tfee: %v",
-		p.Position, p.RestingOrdersCount, p.MarketExposure, avgCost, p.RealizedPnl,
+		"n: %s%d (𝚫 %d)\texp:\t%v\tcost: %v\treal: %v\tfee: %v",
+		posSign, int(math.Abs(float64(p.Position))), p.RestingOrdersCount, p.MarketExposure, avgCost, p.RealizedPnl,
 		p.FeesPaid,
 	)
 }
