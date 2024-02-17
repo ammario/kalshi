@@ -66,9 +66,10 @@ func main() {
 ### Exchange
 `kalshi` supports all Exchange endpoints.
 
-| Endpoint          | Support Status |
-| ----------------- | -------------- |
-| GetExchangeStatus | ✅              |
+| Endpoint            | Support Status |
+|---------------------| -------------- |
+| GetExchangeSchedule | ✅              |
+| GetExchangeStatus   | ✅              |
 
 ### Auth
 

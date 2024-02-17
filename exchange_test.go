@@ -18,3 +18,14 @@ func TestExchangeStatus(t *testing.T) {
 	require.True(t, s.ExchangeActive)
 	require.True(t, s.TradingActive)
 }
+
+func TestExchangeSchedule(t *testing.T) {
+	t.Parallel()
+
+	client := testClient(t)
+
+	_, err := client.ExchangeSchedule(context.Background())
+
+	require.NoError(t, err)
+
+}
