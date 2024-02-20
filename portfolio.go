@@ -151,7 +151,9 @@ type Order struct {
 	ExpirationTime   *Time       `json:"expiration_time"`
 	FccCancelCount   int         `json:"fcc_cancel_count"`
 	LastUpdateTime   *Time       `json:"last_update_time"`
+	MakerFillCost    int         `json:"maker_fill_cost"`
 	MakerFillCount   int         `json:"maker_fill_count"`
+	MakerFees        Cents       `json:"maker_fees"`
 	NoPrice          Cents       `json:"no_price"`
 	OrderID          string      `json:"order_id"`
 	PlaceCount       int         `json:"place_count"`
