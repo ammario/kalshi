@@ -1,6 +1,8 @@
 package kalshi
 
-import "context"
+import (
+	"context"
+)
 
 // LoginRequest is described here:
 // https://trading-api.readme.io/reference/login.
@@ -32,6 +34,7 @@ func (c *Client) Login(ctx context.Context, req LoginRequest) (*LoginResponse, e
 	if err != nil {
 		return nil, err
 	}
+
 	return &resp, nil
 }
 

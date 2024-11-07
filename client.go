@@ -3,7 +3,13 @@ package kalshi
 import (
 	"bytes"
 	"context"
+	"crypto"
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/base64"
 	"encoding/json"
+	"encoding/pem"
 	"fmt"
 	"io"
 	"net/http"
@@ -30,6 +36,30 @@ func (c Cents) String() string {
 	return fmt.Sprintf("$%.2f", dollars)
 }
 
+type APIKey struct {
+	ID  string
+	Key *rsa.PrivateKey
+}
+
+func LoadAPIKey(apiKeyID, path string) (*APIKey, error) {
+	key, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+	// Parse PEM encoded RSA private key
+	block, _ := pem.Decode(key)
+	if block == nil {
+		return nil, fmt.Errorf("failed to decode PEM block")
+	}
+
+	rsaKey, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse private key: %w", err)
+	}
+
+	return &APIKey{ID: apiKeyID, Key: rsaKey}, nil
+}
+
 // Client must be instantiated via New.
 type Client struct {
 	// BaseURL is one of APIDemoURL or APIProdURL.
@@ -38,6 +68,11 @@ type Client struct {
 	// See https://trading-api.readme.io/reference/tiers-and-rate-limits.
 	WriteRatelimit *rate.Limiter
 	ReadRateLimit  *rate.Limiter
+
+	// APIKey is optional if you use the Login method.
+	// As of 2024-11-07, Login-based auth is not working and returning
+	// 403 Forbidden?
+	APIKey *APIKey
 
 	httpClient *http.Client
 }
@@ -60,27 +95,72 @@ type request struct {
 	JSONResponse any
 }
 
-func jsonRequestHeaders(
+func (c *Client) signRequest(req *http.Request) error {
+	if c.APIKey == nil {
+		return nil
+	}
+
+	timestamp := time.Now().UnixMilli()
+	payload := fmt.Sprintf("%d%s%s", timestamp, req.Method, req.URL.Path)
+
+	hashed := crypto.SHA256.New()
+	hashed.Write([]byte(payload))
+	signature, err := rsa.SignPSS(
+		rand.Reader,
+		c.APIKey.Key,
+		crypto.SHA256,
+		hashed.Sum(nil),
+		&rsa.PSSOptions{
+			SaltLength: rsa.PSSSaltLengthEqualsHash,
+		})
+	if err != nil {
+		return fmt.Errorf("failed to sign request: %w", err)
+	}
+
+	req.Header.Set("KALSHI-ACCESS-KEY", c.APIKey.ID)
+	req.Header.Set("KALSHI-ACCESS-TIMESTAMP", strconv.FormatInt(timestamp, 10))
+	req.Header.Set("KALSHI-ACCESS-SIGNATURE", base64.StdEncoding.EncodeToString(signature))
+
+	return nil
+}
+
+func (c *Client) jsonRequestHeaders(
 	ctx context.Context,
 	client *http.Client,
 	headers http.Header,
 	method string, reqURL string,
 	jsonReq any, jsonResp any,
 ) error {
-	reqBodyByt, err := json.Marshal(jsonReq)
-	if err != nil {
-		return err
+	var (
+		reqBodyReader io.Reader
+		reqBodyBytes  []byte
+	)
+	if jsonReq != nil {
+		var err error
+		reqBodyBytes, err = json.Marshal(jsonReq)
+		if err != nil {
+			return err
+		}
+		reqBodyReader = bytes.NewReader(reqBodyBytes)
 	}
 
-	req, err := http.NewRequest(method, reqURL, bytes.NewReader(reqBodyByt))
+	req, err := http.NewRequestWithContext(ctx, method, reqURL, reqBodyReader)
 	if err != nil {
 		return err
 	}
 	if headers != nil {
 		req.Header = headers
 	}
-	req.Header.Set("Content-Type", "application/json")
+
+	if err := c.signRequest(req); err != nil {
+		return fmt.Errorf("sign request: %w", err)
+	}
+
+	if req.Method == "POST" || req.Method == "PUT" {
+		req.Header.Set("Content-Type", "application/json")
+	}
 	req.Header.Set("Accept", "application/json")
+	req.Header.Set("User-Agent", "ammario/kalshi-go")
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -102,9 +182,10 @@ func jsonRequestHeaders(
 	if err != nil {
 		return fmt.Errorf("dump: %w", err)
 	}
-	dumpErr := fmt.Sprintf("Request\n%s%s\nResponse\n%s%s",
+	dumpErr := fmt.Sprintf("Request %s\n%s%s\nResponse\n%s%s",
+		reqURL,
 		reqDump,
-		reqBodyByt,
+		reqBodyBytes,
 		respDump,
 		respBodyByt,
 	)
@@ -164,7 +245,7 @@ func (c *Client) request(
 		}
 	}
 
-	return jsonRequestHeaders(
+	return c.jsonRequestHeaders(
 		ctx,
 		c.httpClient,
 		nil,

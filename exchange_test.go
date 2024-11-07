@@ -12,6 +12,9 @@ func TestExchangeStatus(t *testing.T) {
 
 	client := testClient(t)
 
+	// ExchangeStatus is not authenticated
+	client.APIKey = nil
+
 	s, err := client.ExchangeStatus(context.Background())
 	require.NoError(t, err)
 	// The Demo API never sleeps.
@@ -27,5 +30,4 @@ func TestExchangeSchedule(t *testing.T) {
 	_, err := client.ExchangeSchedule(context.Background())
 
 	require.NoError(t, err)
-
 }

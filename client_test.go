@@ -14,27 +14,29 @@ var rateLimit = rate.NewLimiter(rate.Every(time.Second), 10-1)
 
 func testClient(t *testing.T) *Client {
 	const (
-		emailEnv = "KALSHI_EMAIL"
-		passEnv  = "KALSHI_PASSWORD"
+		apiKeyIDEnv   = "KALSHI_API_KEY_ID"
+		apiKeyPathEnv = "KALSHI_API_KEY_PATH"
 	)
 
 	ctx := context.Background()
 
-	email, ok := os.LookupEnv(emailEnv)
+	apiKeyID, ok := os.LookupEnv(apiKeyIDEnv)
 	if !ok {
-		t.Fatalf("no $%s provided", emailEnv)
+		t.Fatalf("no $%s provided", apiKeyIDEnv)
 	}
-	password, ok := os.LookupEnv(passEnv)
+
+	apiKeyPath, ok := os.LookupEnv(apiKeyPathEnv)
 	if !ok {
-		t.Fatalf("no $%s provided", passEnv)
+		t.Fatalf("no $%s provided", apiKeyPathEnv)
 	}
+
+	apiKey, err := LoadAPIKey(apiKeyID, apiKeyPath)
+	require.NoError(t, err)
 
 	c := New(APIDemoURL)
 	c.WriteRatelimit = rateLimit
-	_, err := c.Login(ctx, LoginRequest{
-		Email:    email,
-		Password: password,
-	})
+	c.APIKey = apiKey
+
 	require.NoError(t, err)
 	t.Cleanup(func() {
 		// Logout will fail during the Logout test.
